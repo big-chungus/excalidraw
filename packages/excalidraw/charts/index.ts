@@ -2,11 +2,6 @@ import type { ChartType } from "@excalidraw/element/types";
 
 import { renderBarChart } from "./charts.bar";
 import { renderLineChart } from "./charts.line";
-import {
-  tryParseCells,
-  tryParseNumber,
-  tryParseSpreadsheet,
-} from "./charts.parse";
 import { renderRadarChart } from "./charts.radar";
 
 import type { ChartElements, Spreadsheet } from "./charts.types";
@@ -18,8 +13,16 @@ export {
   type ChartElements,
 } from "./charts.types";
 
+export type { ParseDelimitedGridResult, Delimiter } from "./charts.parse";
+
 export { isSpreadsheetValidForChartType } from "./charts.helpers";
-export { tryParseCells, tryParseNumber, tryParseSpreadsheet };
+export {
+  parseDelimitedGrid,
+  tryParseCells,
+  tryParseNumber,
+  tryParseSpreadsheet,
+} from "./charts.parse";
+export { buildCsvTableElements, isCsvTableGrid } from "./csvTable";
 
 export const renderSpreadsheet = (
   chartType: ChartType,

@@ -3,7 +3,12 @@ import { vi } from "vitest";
 
 import { getLineHeightInPx } from "@excalidraw/element";
 
-import { KEYS, arrayToMap, getLineHeight } from "@excalidraw/common";
+import {
+  FONT_FAMILY,
+  KEYS,
+  arrayToMap,
+  getLineHeight,
+} from "@excalidraw/common";
 
 import { getElementBounds } from "@excalidraw/element";
 
@@ -642,6 +647,79 @@ describe("clipboard - pasting mermaid definition", () => {
           expect.objectContaining({ type: "text", text: "A" }),
         ]),
       );
+    });
+  });
+});
+
+describe("paste CSV as table", () => {
+  it("should paste text CSV as a grouped grid of text cells", async () => {
+    const text = "Name,Age,City\nAlice,30,NYC\nBob,25,LA";
+    pasteWithCtrlCmdV(text);
+
+    await waitFor(() => {
+      expect(h.elements.length).toEqual(9);
+      expect(h.elements.every((el) => el.type === "text")).toBe(true);
+
+      const groupId = h.elements[0].groupIds[0];
+      expect(groupId).toBeTruthy();
+      expect(h.elements.every((el) => el.groupIds[0] === groupId)).toBe(true);
+
+      const headerCells = h.elements.filter((el) =>
+        ["Name", "Age", "City"].includes(
+          (el as { text: string }).text,
+        ),
+      );
+      expect(headerCells).toHaveLength(3);
+      expect(
+        headerCells.every(
+          (el) => el.fontFamily === FONT_FAMILY["Lilita One"],
+        ),
+      ).toBe(true);
+    });
+  });
+
+  it("should open charts dialog for numeric spreadsheet CSV", async () => {
+    const text = "Label,Value\nA,10\nB,20";
+    pasteWithCtrlCmdV(text);
+
+    await waitFor(() => {
+      expect(h.state.openDialog).toEqual(
+        expect.objectContaining({
+          name: "charts",
+        }),
+      );
+      expect(h.elements.length).toEqual(0);
+    });
+  });
+
+  it("should not create a table on plain paste (Cmd+Shift+V)", async () => {
+    const text = "Name,Age,City\nAlice,30,NYC\nBob,25,LA";
+    pasteWithCtrlCmdShiftV(text);
+
+    await waitFor(() => {
+      // plain paste creates a single text element with the full clipboard text
+      expect(h.elements.length).toEqual(1);
+      expect(h.elements[0]).toEqual(
+        expect.objectContaining({
+          type: "text",
+          originalText: text,
+        }),
+      );
+      expect(h.state.openDialog).toBeNull();
+    });
+  });
+
+  it("should not create a table for single-column text", async () => {
+    const text = "line one\nline two\nline three";
+    pasteWithCtrlCmdV(text);
+
+    await waitFor(() => {
+      expect(h.elements.length).toEqual(3);
+      expect(
+        h.elements.every(
+          (el) => el.type === "text" && el.groupIds.length === 0,
+        ),
+      ).toBe(true);
     });
   });
 });

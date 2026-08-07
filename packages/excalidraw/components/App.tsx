@@ -422,7 +422,12 @@ import { isMaybeMermaidDefinition } from "../mermaid";
 import { LassoTrail } from "../lasso";
 import { EraserTrail } from "../eraser";
 import { getShortcutKey } from "../shortcut";
-import { tryParseSpreadsheet } from "../charts";
+import {
+  buildCsvTableElements,
+  isCsvTableGrid,
+  parseDelimitedGrid,
+  tryParseSpreadsheet,
+} from "../charts";
 
 import ConvertElementTypePopup, {
   getConversionTypeFromElements,
@@ -4444,7 +4449,7 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
-    // ------------------- Spreadsheet -------------------
+    // ------------------- Spreadsheet / CSV table -------------------
 
     if (!isPlainPaste && data.text) {
       const result = tryParseSpreadsheet(data.text);
@@ -4457,6 +4462,32 @@ class App extends React.Component<AppProps, AppState> {
           },
         });
         return;
+      }
+
+      const grid = parseDelimitedGrid(data.text);
+      if (grid.ok && isCsvTableGrid(grid.cells)) {
+        const elements = buildCsvTableElements(grid.cells, {
+          currentItemStrokeColor: this.state.currentItemStrokeColor,
+          currentItemBackgroundColor: this.state.currentItemBackgroundColor,
+          currentItemFillStyle: this.state.currentItemFillStyle,
+          currentItemStrokeStyle: this.state.currentItemStrokeStyle,
+          currentItemRoughness: this.state.currentItemRoughness,
+          currentItemOpacity: this.state.currentItemOpacity,
+          currentItemFontSize: this.state.currentItemFontSize,
+          currentItemFontFamily: this.state.currentItemFontFamily,
+          strokeWidth: this.getCurrentItemStrokeWidth("text"),
+        });
+        if (elements.length > 0) {
+          this.addElementsFromPasteOrLibrary({
+            elements,
+            files: null,
+            position:
+              this.editorInterface.formFactor === "desktop"
+                ? "cursor"
+                : "center",
+          });
+          return;
+        }
       }
     }
 

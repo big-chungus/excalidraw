@@ -128,9 +128,19 @@ export const tryParseCells = (cells: string[][]): ParseSpreadsheetResult => {
   };
 };
 
-export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
+export type Delimiter = "\t" | "," | ";";
+
+export type ParseDelimitedGridResult =
+  | { ok: false; reason: string }
+  | { ok: true; cells: string[][]; delimiter: Delimiter };
+
+/**
+ * Parse clipboard text into a consistent delimited grid (TSV / CSV / semicolon).
+ * Does not validate numeric chart suitability — use tryParseCells for that.
+ */
+export const parseDelimitedGrid = (text: string): ParseDelimitedGridResult => {
   // Copy/paste from excel, spreadsheets, TSV, CSV, semicolon-separated.
-  const parseDelimitedLines = (delimiter: "\t" | "," | ";") =>
+  const parseDelimitedLines = (delimiter: Delimiter) =>
     text
       .replace(/\r\n?/g, "\n")
       .split("\n")
@@ -170,5 +180,13 @@ export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
     };
   }
 
-  return tryParseCells(lines);
+  return { ok: true, cells: lines, delimiter: best.delimiter };
+};
+
+export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
+  const grid = parseDelimitedGrid(text);
+  if (!grid.ok) {
+    return grid;
+  }
+  return tryParseCells(grid.cells);
 };
