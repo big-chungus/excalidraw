@@ -100,7 +100,7 @@ export const buildCsvTableElements = (
   for (let r = 0; r < cells.length; r++) {
     const row = cells[r];
     const font = getCellFont(r);
-    const preparedRow: (typeof preparedCells)[number] = [];
+    const preparedRow: typeof preparedCells[number] = [];
 
     for (let c = 0; c < numCols; c++) {
       const originalText = normalizeText(row[c] ?? "").trim();
@@ -136,9 +136,7 @@ export const buildCsvTableElements = (
     preparedCells.push(preparedRow);
   }
 
-  const colWidths = colContentWidths.map(
-    (width) => width + CELL_PADDING,
-  );
+  const colWidths = colContentWidths.map((width) => width + CELL_PADDING);
 
   const elements: ExcalidrawTextElement[] = [];
   let currentY = 0;

@@ -665,15 +665,11 @@ describe("paste CSV as table", () => {
       expect(h.elements.every((el) => el.groupIds[0] === groupId)).toBe(true);
 
       const headerCells = h.elements.filter((el) =>
-        ["Name", "Age", "City"].includes(
-          (el as { text: string }).text,
-        ),
+        ["Name", "Age", "City"].includes((el as { text: string }).text),
       );
       expect(headerCells).toHaveLength(3);
       expect(
-        headerCells.every(
-          (el) => el.fontFamily === FONT_FAMILY["Lilita One"],
-        ),
+        headerCells.every((el) => el.fontFamily === FONT_FAMILY["Lilita One"]),
       ).toBe(true);
     });
   });
