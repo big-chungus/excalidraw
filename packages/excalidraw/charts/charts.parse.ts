@@ -1,4 +1,7 @@
-import { type ParseSpreadsheetResult } from "./charts.types";
+import {
+  type ParseCsvTableResult,
+  type ParseSpreadsheetResult,
+} from "./charts.types";
 
 /**
  * @private exported for testing
@@ -128,7 +131,13 @@ export const tryParseCells = (cells: string[][]): ParseSpreadsheetResult => {
   };
 };
 
-export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
+/**
+ * Split clipboard text into rows/cells. Prefers a delimiter that yields a
+ * consistent grid, with tab beating comma beating semicolon on ties.
+ *
+ * @private exported for testing
+ */
+export const parseDelimitedRows = (text: string): string[][] => {
   // Copy/paste from excel, spreadsheets, TSV, CSV, semicolon-separated.
   const parseDelimitedLines = (delimiter: "\t" | "," | ";") =>
     text
@@ -154,16 +163,22 @@ export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
     candidates.find((c) => c.isConsistent) ??
     candidates[0];
 
-  const lines = best.parsed;
+  return best.parsed;
+};
+
+const hasConsistentColumns = (rows: string[][]) => {
+  const numCols = rows[0]?.length ?? 0;
+  return numCols > 0 && rows.every((row) => row.length === numCols);
+};
+
+export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
+  const lines = parseDelimitedRows(text);
 
   if (lines.length === 0) {
     return { ok: false, reason: "No values" };
   }
 
-  const numColsFirstLine = lines[0].length;
-  const isSpreadsheet = lines.every((line) => line.length === numColsFirstLine);
-
-  if (!isSpreadsheet) {
+  if (!hasConsistentColumns(lines)) {
     return {
       ok: false,
       reason: "All rows don't have same number of columns",
@@ -171,4 +186,36 @@ export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
   }
 
   return tryParseCells(lines);
+};
+
+export const tryParseCsvTable = (text: string): ParseCsvTableResult => {
+  const rows = parseDelimitedRows(text);
+
+  if (rows.length < 2) {
+    return { ok: false, reason: "Need at least two rows" };
+  }
+
+  const numCols = rows[0].length;
+  if (numCols < 2) {
+    return { ok: false, reason: "Need at least two columns" };
+  }
+
+  if (!hasConsistentColumns(rows)) {
+    return {
+      ok: false,
+      reason: "All rows don't have same number of columns",
+    };
+  }
+
+  if (rows.every((row) => row.every((cell) => cell.length === 0))) {
+    return { ok: false, reason: "No values" };
+  }
+
+  return {
+    ok: true,
+    data: {
+      rows,
+      hasHeader: rows[0].every((cell) => tryParseNumber(cell) === null),
+    },
+  };
 };

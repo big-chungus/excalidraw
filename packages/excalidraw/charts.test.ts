@@ -1,6 +1,10 @@
-import { FONT_FAMILY } from "@excalidraw/common";
 import {
+  COLOR_PALETTE,
   DEFAULT_CHART_COLOR_INDEX,
+  DEFAULT_ELEMENT_PROPS,
+  DEFAULT_FONT_FAMILY,
+  DEFAULT_FONT_SIZE,
+  FONT_FAMILY,
   getAllColorsSpecificShade,
 } from "@excalidraw/common";
 
@@ -12,6 +16,7 @@ import type {
 
 import {
   isSpreadsheetValidForChartType,
+  renderCsvTable,
   renderSpreadsheet,
   tryParseCells,
   tryParseNumber,
@@ -1162,5 +1167,82 @@ describe("charts", () => {
       expect(legendLabels.length).toBeGreaterThan(0);
       expect(legendTopY).toBeGreaterThan(axisBottomY + 2);
     });
+  });
+});
+
+describe("renderCsvTable", () => {
+  const renderOpts = {
+    ...DEFAULT_ELEMENT_PROPS,
+    fontSize: DEFAULT_FONT_SIZE,
+    fontFamily: DEFAULT_FONT_FAMILY,
+  };
+
+  it("lays out a grouped grid with padded columns and a bold header row", () => {
+    const elements = renderCsvTable(
+      {
+        hasHeader: true,
+        rows: [
+          ["Name", "Role"],
+          ["Alice", "Engineer"],
+          ["Bob", "Designer"],
+        ],
+      },
+      renderOpts,
+    );
+
+    const cells = elements.filter((element) => element.type === "rectangle");
+    const labels = elements.filter(
+      (element): element is NonDeleted<ExcalidrawTextElement> =>
+        element.type === "text",
+    );
+
+    expect(cells).toHaveLength(6);
+    expect(labels).toHaveLength(6);
+
+    const groupId = cells[0].groupIds[0];
+    expect(groupId).toBeTruthy();
+    expect(
+      elements.every((element) => element.groupIds.includes(groupId)),
+    ).toBe(true);
+
+    expect(cells[0].x).toBe(cells[2].x);
+    expect(cells[0].x).toBe(cells[4].x);
+    expect(cells[1].x).toBe(cells[3].x);
+    expect(cells[0].y).toBe(cells[1].y);
+    expect(cells[2].y).toBe(cells[3].y);
+    expect(cells[1].x).toBe(cells[0].x + cells[0].width);
+    expect(cells[2].y).toBe(cells[0].y + cells[0].height);
+    expect(cells[0].width).toBe(cells[2].width);
+    expect(cells[0].height).toBe(cells[1].height);
+
+    const headerLabel = labels.find((label) => label.originalText === "Name");
+    const bodyLabel = labels.find((label) => label.originalText === "Alice");
+    expect(headerLabel?.fontFamily).toBe(FONT_FAMILY["Lilita One"]);
+    expect(bodyLabel?.fontFamily).toBe(DEFAULT_FONT_FAMILY);
+    expect(cells[0].backgroundColor).toBe(COLOR_PALETTE.gray[0]);
+    expect(cells[2].backgroundColor).toBe(
+      DEFAULT_ELEMENT_PROPS.backgroundColor,
+    );
+  });
+
+  it("skips labels for empty cells without collapsing the grid", () => {
+    const elements = renderCsvTable(
+      {
+        hasHeader: false,
+        rows: [
+          ["A", ""],
+          ["C", "D"],
+        ],
+      },
+      renderOpts,
+    );
+
+    const cells = elements.filter((element) => element.type === "rectangle");
+    const labels = elements.filter((element) => element.type === "text");
+
+    expect(cells).toHaveLength(4);
+    expect(labels).toHaveLength(3);
+    expect(cells[0].height).toBe(cells[1].height);
+    expect(cells[1].width).toBe(cells[3].width);
   });
 });

@@ -422,7 +422,11 @@ import { isMaybeMermaidDefinition } from "../mermaid";
 import { LassoTrail } from "../lasso";
 import { EraserTrail } from "../eraser";
 import { getShortcutKey } from "../shortcut";
-import { tryParseSpreadsheet } from "../charts";
+import {
+  renderCsvTable,
+  tryParseCsvTable,
+  tryParseSpreadsheet,
+} from "../charts";
 
 import ConvertElementTypePopup, {
   getConversionTypeFromElements,
@@ -4455,6 +4459,28 @@ class App extends React.Component<AppProps, AppState> {
             data: result.data,
             rawText: data.text,
           },
+        });
+        return;
+      }
+
+      const table = tryParseCsvTable(data.text);
+      if (table.ok) {
+        const elements = renderCsvTable(table.data, {
+          strokeColor: this.state.currentItemStrokeColor,
+          backgroundColor: this.state.currentItemBackgroundColor,
+          fillStyle: this.state.currentItemFillStyle,
+          fontSize: this.state.currentItemFontSize,
+          fontFamily: this.state.currentItemFontFamily,
+          roughness: this.state.currentItemRoughness,
+          opacity: this.state.currentItemOpacity,
+          strokeWidth: this.getCurrentItemStrokeWidth("rectangle"),
+          strokeStyle: this.state.currentItemStrokeStyle,
+        });
+        this.addElementsFromPasteOrLibrary({
+          elements,
+          files: null,
+          position:
+            this.editorInterface.formFactor === "desktop" ? "cursor" : "center",
         });
         return;
       }

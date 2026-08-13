@@ -16,3 +16,12 @@ export interface SpreadsheetSeries {
 export type ParseSpreadsheetResult =
   | { ok: false; reason: string }
   | { ok: true; data: Spreadsheet };
+
+export interface CsvTable {
+  rows: string[][];
+  hasHeader: boolean;
+}
+
+export type ParseCsvTableResult =
+  | { ok: false; reason: string }
+  | { ok: true; data: CsvTable };

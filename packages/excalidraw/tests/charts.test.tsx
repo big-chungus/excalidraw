@@ -1,4 +1,4 @@
-import { tryParseSpreadsheet } from "../charts";
+import { tryParseSpreadsheet, tryParseCsvTable } from "../charts";
 
 describe("tryParseSpreadsheet", () => {
   it("works for numbers with comma in them", () => {
@@ -159,6 +159,85 @@ B\t20`,
         labels: ["A", "B"],
         series: [{ title: "Value", values: [10, 20] }],
       },
+    });
+  });
+});
+
+describe("tryParseCsvTable", () => {
+  it("parses comma-separated text grids with a header row", () => {
+    const result = tryParseCsvTable(
+      `Name,Role,Team
+Alice,Engineer,Platform
+Bob,Designer,Product`,
+    );
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        hasHeader: true,
+        rows: [
+          ["Name", "Role", "Team"],
+          ["Alice", "Engineer", "Platform"],
+          ["Bob", "Designer", "Product"],
+        ],
+      },
+    });
+  });
+
+  it("parses tab-separated grids", () => {
+    const result = tryParseCsvTable(`Name\tRole
+Alice\tEngineer
+Bob\tDesigner`);
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        hasHeader: true,
+        rows: [
+          ["Name", "Role"],
+          ["Alice", "Engineer"],
+          ["Bob", "Designer"],
+        ],
+      },
+    });
+  });
+
+  it("does not treat an all-numeric first row as a header", () => {
+    const result = tryParseCsvTable(`1,2
+a,b`);
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        hasHeader: false,
+        rows: [
+          ["1", "2"],
+          ["a", "b"],
+        ],
+      },
+    });
+  });
+
+  it("rejects a single row, a single column, empty cells, and ragged rows", () => {
+    expect(tryParseCsvTable("hello, world")).toEqual({
+      ok: false,
+      reason: "Need at least two rows",
+    });
+    expect(tryParseCsvTable("hello\nworld")).toEqual({
+      ok: false,
+      reason: "Need at least two columns",
+    });
+    expect(tryParseCsvTable(",,\n,,")).toEqual({
+      ok: false,
+      reason: "No values",
+    });
+    expect(tryParseCsvTable("a,b\nc")).toEqual({
+      ok: false,
+      reason: "Need at least two columns",
+    });
+    expect(tryParseCsvTable("")).toEqual({
+      ok: false,
+      reason: "Need at least two rows",
     });
   });
 });

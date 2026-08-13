@@ -3,7 +3,12 @@ import { vi } from "vitest";
 
 import { getLineHeightInPx } from "@excalidraw/element";
 
-import { KEYS, arrayToMap, getLineHeight } from "@excalidraw/common";
+import {
+  KEYS,
+  arrayToMap,
+  getLineHeight,
+  FONT_FAMILY,
+} from "@excalidraw/common";
 
 import { getElementBounds } from "@excalidraw/element";
 
@@ -642,6 +647,67 @@ describe("clipboard - pasting mermaid definition", () => {
           expect.objectContaining({ type: "text", text: "A" }),
         ]),
       );
+    });
+  });
+});
+
+describe("paste CSV as table", () => {
+  it("creates a grouped grid of cells from CSV text", async () => {
+    pasteWithCtrlCmdV(`Name,Role,Team
+Alice,Engineer,Platform
+Bob,Designer,Product`);
+
+    await waitFor(() => {
+      const cells = h.elements.filter(
+        (element) => element.type === "rectangle",
+      );
+      const labels = h.elements.filter((element) => element.type === "text");
+      expect(cells).toHaveLength(9);
+      expect(labels).toHaveLength(9);
+
+      const groupId = cells[0].groupIds[0];
+      expect(
+        h.elements.every((element) => element.groupIds.includes(groupId)),
+      ).toBe(true);
+
+      const header = labels.find((element) => element.text === "Name");
+      const body = labels.find((element) => element.text === "Alice");
+      expect(header?.fontFamily).toBe(FONT_FAMILY["Lilita One"]);
+      expect(body?.fontFamily).not.toBe(FONT_FAMILY["Lilita One"]);
+
+      expect(cells[0].x).toBe(cells[3].x);
+      expect(cells[1].x).toBe(cells[0].x + cells[0].width);
+      expect(cells[3].y).toBe(cells[0].y + cells[0].height);
+    });
+  });
+
+  it("creates a table from tab-separated values", async () => {
+    pasteWithCtrlCmdV("Name\tRole\nAlice\tEngineer\nBob\tDesigner");
+
+    await waitFor(() => {
+      expect(
+        h.elements.filter((element) => element.type === "rectangle"),
+      ).toHaveLength(6);
+      expect(
+        h.elements.filter((element) => element.type === "text"),
+      ).toHaveLength(6);
+    });
+  });
+
+  it("leaves numeric spreadsheets to the chart dialog", async () => {
+    pasteWithCtrlCmdV("Label,Value\nA,10\nB,20");
+
+    await waitFor(() => {
+      expect(h.state.openDialog?.name).toBe("charts");
+      expect(h.elements).toHaveLength(0);
+    });
+  });
+
+  it("does not turn a single CSV line into a table", async () => {
+    pasteWithCtrlCmdV("hello, world");
+    await waitFor(() => {
+      expect(h.elements).toHaveLength(1);
+      expect(h.elements[0].type).toBe("text");
     });
   });
 });
