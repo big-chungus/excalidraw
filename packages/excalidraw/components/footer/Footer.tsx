@@ -1,5 +1,7 @@
 import clsx from "clsx";
 
+import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
+
 import { actionShortcuts } from "../../actions";
 import { useTunnels } from "../../context/tunnels";
 import { ExitZenModeButton, UndoRedoActions, ZoomActions } from "../Actions";
@@ -7,6 +9,8 @@ import { useApp } from "../App";
 import { HelpButton } from "../HelpButton";
 import { Section } from "../Section";
 import Stack from "../Stack";
+
+import { ElementCount } from "./ElementCount";
 
 import type { ActionManager } from "../../actions/manager";
 import type { UIAppState } from "../../types";
@@ -18,6 +22,7 @@ const Footer = ({
   renderWelcomeScreen,
   defaultUIEnabled,
   zoomUIEnabled,
+  elements,
 }: {
   appState: UIAppState;
   actionManager: ActionManager;
@@ -25,6 +30,7 @@ const Footer = ({
   renderWelcomeScreen: boolean;
   defaultUIEnabled: boolean;
   zoomUIEnabled: boolean;
+  elements: readonly NonDeletedExcalidrawElement[];
 }) => {
   const { FooterCenterTunnel, WelcomeScreenHelpHintTunnel } = useTunnels();
   const app = useApp();
@@ -59,6 +65,8 @@ const Footer = ({
                   })}
                 />
               )}
+
+              {defaultUIEnabled && <ElementCount elements={elements} />}
             </Section>
           </Stack.Col>
         </div>

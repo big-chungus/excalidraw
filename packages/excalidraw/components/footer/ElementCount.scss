@@ -1,0 +1,18 @@
+.excalidraw {
+  .element-count {
+    background-color: var(--island-bg-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 0 0 1px var(--color-surface-lowest);
+    color: var(--text-primary-color);
+    font-family: var(--ui-font);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    height: var(--lg-button-size);
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    user-select: none;
+  }
+}

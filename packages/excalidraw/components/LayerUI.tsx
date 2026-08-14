@@ -644,6 +644,7 @@ const LayerUI = ({
               renderWelcomeScreen={renderWelcomeScreen}
               defaultUIEnabled={defaultUIEnabled}
               zoomUIEnabled={zoomUIEnabled}
+              elements={elements}
             />
             {(appState.toast ||
               (scrollBackToContentUIEnabled && appState.scrolledOutside) ||
