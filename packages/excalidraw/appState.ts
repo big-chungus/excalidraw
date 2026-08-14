@@ -175,7 +175,9 @@ const APP_STATE_STORAGE_CONF = (<
     server: false,
   },
   currentItemStartArrowhead: { browser: true, export: false, server: false },
-  currentItemStrokeColor: { browser: true, export: false, server: false },
+  // session-only: last stroke color is remembered in memory for the tab,
+  // not written to localStorage so a refresh returns to the default
+  currentItemStrokeColor: { browser: false, export: false, server: false },
   currentItemStrokeStyle: { browser: true, export: false, server: false },
   currentItemStrokeWidthKey: { browser: true, export: false, server: false },
   currentItemTextAlign: { browser: true, export: false, server: false },
