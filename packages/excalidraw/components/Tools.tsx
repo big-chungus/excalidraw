@@ -10,6 +10,7 @@ import { t } from "../i18n";
 import { getShortcutKey } from "../shortcut";
 
 import { IconButton } from "./IconButton";
+import { Tooltip } from "./Tooltip";
 import { ToolPopover } from "./ToolPopover";
 import {
   SelectionIcon,
@@ -252,6 +253,11 @@ type ToolButtonBehavior = {
     app: AppClassProperties,
     data: { pointerType: PointerType | null },
   ) => void;
+  /**
+   * show the themed hover tooltip instead of the native `title` hint —
+   * used when the shortcut should be immediately visible on hover
+   */
+  themedTooltip?: boolean;
 };
 
 /**
@@ -274,15 +280,17 @@ const createToolButton = (
   }: ToolButtonComponentProps) => {
     const label = capitalizeString(t(`toolBar.${type}`));
     const shortcut = hideShortcut ? null : getToolShortcut(shortcutType);
+    const tooltipLabel = shortcut ? `${label} — ${shortcut}` : label;
+    const useThemedTooltip = Boolean(behavior?.themedTooltip) && !hideShortcut;
 
-    return (
+    const button = (
       <IconButton
         className={clsx({ fillable: config.fillable })}
         type="toggle"
         icon={config.icon}
         checked={activeTool.type === type}
         disabled={isToolButtonDisabled(app, type)}
-        title={shortcut ? `${label} — ${shortcut}` : label}
+        title={useThemedTooltip ? undefined : tooltipLabel}
         keyBindingLabel={
           hideKeyBinding || hideShortcut
             ? undefined
@@ -308,6 +316,12 @@ const createToolButton = (
         }}
       />
     );
+
+    if (useThemedTooltip) {
+      return <Tooltip label={tooltipLabel}>{button}</Tooltip>;
+    }
+
+    return button;
   };
 
   ToolButtonComponent.displayName = `${capitalizeString(type)}IconButton`;
@@ -315,7 +329,9 @@ const createToolButton = (
   return ToolButtonComponent;
 };
 
-export const HandToolButton = createToolButton("hand");
+export const HandToolButton = createToolButton("hand", {
+  themedTooltip: true,
+});
 export const RectangleToolButton = createToolButton("rectangle");
 export const DiamondToolButton = createToolButton("diamond");
 export const EllipseToolButton = createToolButton("ellipse");

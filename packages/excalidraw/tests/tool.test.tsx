@@ -9,7 +9,7 @@ import {
 
 import { Excalidraw } from "../index";
 
-import { findShapeByKey } from "../components/Tools";
+import { findShapeByKey, getToolShortcut } from "../components/Tools";
 
 import { API } from "./helpers/api";
 import { Pointer } from "./helpers/ui";
@@ -74,6 +74,31 @@ describe("setActiveTool()", () => {
     expect(h.state.activeTool.customType).toBe("comment");
   });
 });
+describe("hand tool shortcut tooltip", () => {
+  it("shows the H keybinding in a themed tooltip on hover", async () => {
+    await render(<Excalidraw />);
+
+    const handButton = GlobalTestState.renderResult.container.querySelector(
+      '[data-testid="toolbar-hand"]',
+    );
+    expect(handButton).not.toBe(null);
+    expect(handButton!.getAttribute("aria-keyshortcuts")).toBe(
+      getToolShortcut("hand"),
+    );
+    expect(getToolShortcut("hand")).toBe("H");
+
+    const tooltipWrapper = handButton!.closest(".excalidraw-tooltip-wrapper");
+    expect(tooltipWrapper).not.toBe(null);
+
+    fireEvent.pointerEnter(tooltipWrapper!);
+
+    const tooltip = document.querySelector(".excalidraw-tooltip--visible");
+    expect(tooltip).not.toBe(null);
+    expect(tooltip!.textContent).toContain("H");
+    expect(tooltip!.textContent).toMatch(/hand/i);
+  });
+});
+
 describe("findShapeByKey()", () => {
   const appWithPreferredTool = (
     preferredSelectionTool: "selection" | "lasso",
