@@ -109,7 +109,7 @@ export const actionDuplicateSelection = register({
     };
   },
   keyTest: (event) => event[KEYS.CTRL_OR_CMD] && event.key === KEYS.D,
-  PanelComponent: ({ elements, appState, updateData, app }) => {
+  PanelComponent: ({ elements, appState, updateData, app, data }) => {
     const isMobile = useStylesPanelMode() === "mobile";
 
     return (
@@ -120,6 +120,7 @@ export const actionDuplicateSelection = register({
           "CtrlOrCmd+D",
         )}`}
         aria-label={t("labels.duplicateSelection")}
+        data-testid={data?.testId}
         onClick={() => updateData(null)}
         disabled={
           !isSomeElementSelected(getNonDeletedElements(elements), appState)

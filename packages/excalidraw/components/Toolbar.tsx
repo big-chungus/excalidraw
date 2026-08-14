@@ -276,6 +276,9 @@ export const Toolbar = ({
         ) : (
           <SelectionToolButton {...toolProps} />
         )}
+        {app.actionManager.renderAction("duplicateSelection", {
+          testId: "toolbar-duplicate",
+        })}
         <RectangleToolButton {...toolProps} />
         <DiamondToolButton {...toolProps} />
         <EllipseToolButton {...toolProps} />

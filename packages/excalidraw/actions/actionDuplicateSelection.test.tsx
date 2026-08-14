@@ -1,10 +1,12 @@
-import { ORIG_ID } from "@excalidraw/common";
+import { DEFAULT_GRID_SIZE, KEYS, ORIG_ID } from "@excalidraw/common";
 
 import { Excalidraw } from "../index";
 import { API } from "../tests/helpers/api";
+import { Keyboard } from "../tests/helpers/ui";
 import {
   act,
   assertElements,
+  fireEvent,
   getCloneByOrigId,
   render,
 } from "../tests/test-utils";
@@ -527,5 +529,73 @@ describe("actionDuplicateSelection", () => {
         { id: rect2.id, groupIds: ["A", "B"] },
       ]);
     });
+  });
+});
+
+describe("duplicate selection toolbar button", () => {
+  const getToolbarDuplicateButton = () =>
+    document.querySelector<HTMLButtonElement>(
+      '[data-testid="toolbar-duplicate"]',
+    );
+
+  beforeEach(async () => {
+    await render(<Excalidraw handleKeyboardGlobally={true} />);
+  });
+
+  it("is disabled when nothing is selected", () => {
+    const button = getToolbarDuplicateButton();
+    expect(button).not.toBeNull();
+    expect(button).toBeDisabled();
+  });
+
+  it("is enabled when the selection is non-empty", () => {
+    const rectangle = API.createElement({
+      type: "rectangle",
+      x: 10,
+      y: 20,
+      width: 60,
+      height: 40,
+    });
+    API.setElements([rectangle]);
+    API.setSelectedElements([rectangle]);
+
+    const button = getToolbarDuplicateButton();
+    expect(button).not.toBeNull();
+    expect(button).toBeEnabled();
+  });
+
+  it("duplicates the selection with the same offset as Ctrl/Cmd+D", () => {
+    const rectangle = API.createElement({
+      type: "rectangle",
+      x: 40,
+      y: 80,
+      width: 60,
+      height: 40,
+    });
+    API.setElements([rectangle]);
+    API.setSelectedElements([rectangle]);
+
+    fireEvent.click(getToolbarDuplicateButton()!);
+
+    expect(h.elements).toHaveLength(2);
+    const duplicatedViaButton = h.elements.find(
+      (element) => element.id !== rectangle.id,
+    )!;
+    expect(duplicatedViaButton.x).toBe(rectangle.x + DEFAULT_GRID_SIZE / 2);
+    expect(duplicatedViaButton.y).toBe(rectangle.y + DEFAULT_GRID_SIZE / 2);
+
+    API.setElements([rectangle]);
+    API.setSelectedElements([rectangle]);
+
+    Keyboard.withModifierKeys({ ctrl: true }, () => {
+      Keyboard.keyPress(KEYS.D);
+    });
+
+    expect(h.elements).toHaveLength(2);
+    const duplicatedViaShortcut = h.elements.find(
+      (element) => element.id !== rectangle.id,
+    )!;
+    expect(duplicatedViaShortcut.x).toBe(duplicatedViaButton.x);
+    expect(duplicatedViaShortcut.y).toBe(duplicatedViaButton.y);
   });
 });
