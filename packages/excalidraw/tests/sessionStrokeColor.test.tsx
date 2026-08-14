@@ -64,7 +64,7 @@ describe("session stroke color", () => {
 
     const persisted = clearAppStateForLocalStorage(h.state);
 
-    expect(persisted.currentItemStrokeColor).toBeUndefined();
+    expect("currentItemStrokeColor" in persisted).toBe(false);
     expect(persisted.currentItemBackgroundColor).toBe("#a5d8ff");
 
     const afterRefresh = {
