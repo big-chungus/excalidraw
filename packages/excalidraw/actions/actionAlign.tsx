@@ -16,6 +16,8 @@ import type { ExcalidrawElement } from "@excalidraw/element/types";
 
 import type { Alignment } from "@excalidraw/element";
 
+import type { ReactNode } from "react";
+
 import { IconButton } from "../components/IconButton";
 import {
   AlignBottomIcon,
@@ -35,6 +37,46 @@ import { getShortcutKey } from "../shortcut";
 import { register } from "./register";
 
 import type { AppClassProperties, AppState, UIAppState } from "../types";
+
+const AlignActionButton = ({
+  appState,
+  app,
+  elements,
+  updateData,
+  icon,
+  title,
+  ariaLabel,
+  testId,
+}: {
+  appState: UIAppState;
+  app: AppClassProperties;
+  elements: readonly ExcalidrawElement[];
+  updateData: (formData?: unknown) => void;
+  icon: ReactNode;
+  title: string;
+  ariaLabel: string;
+  testId?: string;
+}) => {
+  const canAlign = alignActionsPredicate(appState, app);
+  const isToolbar = Boolean(testId);
+
+  return (
+    <IconButton
+      hidden={isToolbar ? false : !canAlign}
+      disabled={isToolbar && !canAlign}
+      type="button"
+      icon={icon}
+      onClick={() => updateData(null)}
+      title={title}
+      aria-label={ariaLabel}
+      data-testid={testId}
+      visible={
+        isToolbar ||
+        isSomeElementSelected(getNonDeletedElements(elements), appState)
+      }
+    />
+  );
+};
 
 export const alignActionsPredicate = (
   appState: UIAppState,
@@ -163,17 +205,18 @@ export const actionAlignLeft = register({
   },
   keyTest: (event) =>
     event[KEYS.CTRL_OR_CMD] && event.shiftKey && event.key === KEYS.ARROW_LEFT,
-  PanelComponent: ({ elements, appState, updateData, app }) => (
-    <IconButton
-      hidden={!alignActionsPredicate(appState, app)}
-      type="button"
+  PanelComponent: ({ elements, appState, updateData, app, data }) => (
+    <AlignActionButton
+      elements={elements}
+      appState={appState}
+      app={app}
+      updateData={updateData}
       icon={AlignLeftIcon}
-      onClick={() => updateData(null)}
       title={`${t("labels.alignLeft")} — ${getShortcutKey(
         "CtrlOrCmd+Shift+Left",
       )}`}
-      aria-label={t("labels.alignLeft")}
-      visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
+      ariaLabel={t("labels.alignLeft")}
+      testId={data?.testId}
     />
   ),
 });
@@ -197,17 +240,18 @@ export const actionAlignRight = register({
   },
   keyTest: (event) =>
     event[KEYS.CTRL_OR_CMD] && event.shiftKey && event.key === KEYS.ARROW_RIGHT,
-  PanelComponent: ({ elements, appState, updateData, app }) => (
-    <IconButton
-      hidden={!alignActionsPredicate(appState, app)}
-      type="button"
+  PanelComponent: ({ elements, appState, updateData, app, data }) => (
+    <AlignActionButton
+      elements={elements}
+      appState={appState}
+      app={app}
+      updateData={updateData}
       icon={AlignRightIcon}
-      onClick={() => updateData(null)}
       title={`${t("labels.alignRight")} — ${getShortcutKey(
         "CtrlOrCmd+Shift+Right",
       )}`}
-      aria-label={t("labels.alignRight")}
-      visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
+      ariaLabel={t("labels.alignRight")}
+      testId={data?.testId}
     />
   ),
 });
@@ -259,15 +303,16 @@ export const actionAlignHorizontallyCentered = register({
       captureUpdate: CaptureUpdateAction.IMMEDIATELY,
     };
   },
-  PanelComponent: ({ elements, appState, updateData, app }) => (
-    <IconButton
-      hidden={!alignActionsPredicate(appState, app)}
-      type="button"
+  PanelComponent: ({ elements, appState, updateData, app, data }) => (
+    <AlignActionButton
+      elements={elements}
+      appState={appState}
+      app={app}
+      updateData={updateData}
       icon={CenterHorizontallyIcon}
-      onClick={() => updateData(null)}
       title={t("labels.centerHorizontally")}
-      aria-label={t("labels.centerHorizontally")}
-      visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
+      ariaLabel={t("labels.centerHorizontally")}
+      testId={data?.testId}
     />
   ),
 });

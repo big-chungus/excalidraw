@@ -16,6 +16,7 @@ import { API } from "@excalidraw/excalidraw/tests/helpers/api";
 import { UI, Pointer, Keyboard } from "@excalidraw/excalidraw/tests/helpers/ui";
 import {
   act,
+  fireEvent,
   unmountComponent,
   render,
 } from "@excalidraw/excalidraw/tests/test-utils";
@@ -1093,5 +1094,136 @@ describe("aligning", () => {
 
     expect(API.getElement(boundText).x).toEqual(20);
     expect(API.getElement(boundText).y).toEqual(140);
+  });
+});
+
+describe("multi-select align toolbar buttons", () => {
+  const getToolbarAlignButton = (alignment: "left" | "center" | "right") =>
+    document.querySelector<HTMLButtonElement>(
+      `[data-testid="toolbar-align-${alignment}"]`,
+    );
+
+  beforeEach(async () => {
+    unmountComponent();
+    await act(() => {
+      return setLanguage(defaultLang);
+    });
+    await render(<Excalidraw handleKeyboardGlobally={true} />);
+  });
+
+  it("is disabled when nothing is selected", () => {
+    expect(getToolbarAlignButton("left")).toBeDisabled();
+    expect(getToolbarAlignButton("center")).toBeDisabled();
+    expect(getToolbarAlignButton("right")).toBeDisabled();
+  });
+
+  it("is disabled for a single selected element", () => {
+    const rectangle = API.createElement({
+      type: "rectangle",
+      x: 10,
+      y: 20,
+      width: 60,
+      height: 40,
+    });
+    API.setElements([rectangle]);
+    API.setSelectedElements([rectangle]);
+
+    expect(getToolbarAlignButton("left")).toBeDisabled();
+    expect(getToolbarAlignButton("center")).toBeDisabled();
+    expect(getToolbarAlignButton("right")).toBeDisabled();
+  });
+
+  it("is enabled when two or more elements are selected", () => {
+    const left = API.createElement({
+      type: "rectangle",
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 60,
+    });
+    const right = API.createElement({
+      type: "ellipse",
+      x: 200,
+      y: 40,
+      width: 80,
+      height: 60,
+    });
+    API.setElements([left, right]);
+    API.setSelectedElements([left, right]);
+
+    expect(getToolbarAlignButton("left")).toBeEnabled();
+    expect(getToolbarAlignButton("center")).toBeEnabled();
+    expect(getToolbarAlignButton("right")).toBeEnabled();
+  });
+
+  const createMixedSelection = () => {
+    const rectangle = API.createElement({
+      type: "rectangle",
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 80,
+    });
+    const ellipse = API.createElement({
+      type: "ellipse",
+      x: 200,
+      y: 40,
+      width: 80,
+      height: 60,
+    });
+    API.setElements([rectangle, ellipse]);
+    API.setSelectedElements([rectangle, ellipse]);
+    return { rectangle, ellipse };
+  };
+
+  it("aligns mixed shape types left to the selection bounding box", () => {
+    const { rectangle, ellipse } = createMixedSelection();
+
+    fireEvent.click(getToolbarAlignButton("left")!);
+
+    expect(API.getElement(rectangle).x).toBe(0);
+    expect(API.getElement(ellipse).x).toBe(0);
+    expect(API.getElement(rectangle).y).toBe(0);
+    expect(API.getElement(ellipse).y).toBe(40);
+  });
+
+  it("aligns mixed shape types right to the selection bounding box", () => {
+    const { rectangle, ellipse } = createMixedSelection();
+
+    fireEvent.click(getToolbarAlignButton("right")!);
+
+    // selection maxX is 280; rectangle width 100 → x=180, ellipse width 80 → x=200
+    expect(API.getElement(rectangle).x).toBe(180);
+    expect(API.getElement(ellipse).x).toBe(200);
+  });
+
+  it("aligns mixed shape types to the horizontal center of the selection", () => {
+    const { rectangle, ellipse } = createMixedSelection();
+
+    fireEvent.click(getToolbarAlignButton("center")!);
+
+    // selection centerX is 140
+    expect(API.getElement(rectangle).x).toBe(90);
+    expect(API.getElement(ellipse).x).toBe(100);
+  });
+
+  it("undo restores previous positions after a toolbar align", () => {
+    createAndSelectTwoRectangles();
+
+    const [first, second] = API.getSelectedElements();
+    const firstPos = { x: first.x, y: first.y };
+    const secondPos = { x: second.x, y: second.y };
+
+    fireEvent.click(getToolbarAlignButton("left")!);
+
+    expect(API.getElement(first).x).toBe(0);
+    expect(API.getElement(second).x).toBe(0);
+
+    Keyboard.undo();
+
+    expect(API.getElement(first).x).toBe(firstPos.x);
+    expect(API.getElement(first).y).toBe(firstPos.y);
+    expect(API.getElement(second).x).toBe(secondPos.x);
+    expect(API.getElement(second).y).toBe(secondPos.y);
   });
 });

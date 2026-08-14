@@ -6,7 +6,11 @@ import { KEYS } from "@excalidraw/common";
 import { useTunnels } from "../context/tunnels";
 import { t } from "../i18n";
 
-import { useEditorInterface, useStylesPanelMode } from "./App";
+import {
+  useEditorInterface,
+  useExcalidrawActionManager,
+  useStylesPanelMode,
+} from "./App";
 import { HintViewer } from "./HintViewer";
 import { Island } from "./Island";
 import { LockButton } from "./LockButton";
@@ -219,6 +223,7 @@ export const Toolbar = ({
   heading: React.ReactNode;
 }) => {
   const editorInterface = useEditorInterface();
+  const actionManager = useExcalidrawActionManager();
   const isCompactStylesPanel = useStylesPanelMode() === "compact";
 
   const activeTool = appState.activeTool;
@@ -276,6 +281,15 @@ export const Toolbar = ({
         ) : (
           <SelectionToolButton {...toolProps} />
         )}
+        {actionManager.renderAction("alignLeft", {
+          testId: "toolbar-align-left",
+        })}
+        {actionManager.renderAction("alignHorizontallyCentered", {
+          testId: "toolbar-align-center",
+        })}
+        {actionManager.renderAction("alignRight", {
+          testId: "toolbar-align-right",
+        })}
         <RectangleToolButton {...toolProps} />
         <DiamondToolButton {...toolProps} />
         <EllipseToolButton {...toolProps} />
