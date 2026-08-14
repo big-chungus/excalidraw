@@ -6,7 +6,11 @@ import { KEYS } from "@excalidraw/common";
 import { useTunnels } from "../context/tunnels";
 import { t } from "../i18n";
 
-import { useEditorInterface, useStylesPanelMode } from "./App";
+import {
+  useEditorInterface,
+  useExcalidrawActionManager,
+  useStylesPanelMode,
+} from "./App";
 import { HintViewer } from "./HintViewer";
 import { Island } from "./Island";
 import { LockButton } from "./LockButton";
@@ -219,6 +223,7 @@ export const Toolbar = ({
   heading: React.ReactNode;
 }) => {
   const editorInterface = useEditorInterface();
+  const actionManager = useExcalidrawActionManager();
   const isCompactStylesPanel = useStylesPanelMode() === "compact";
 
   const activeTool = appState.activeTool;
@@ -276,7 +281,7 @@ export const Toolbar = ({
         ) : (
           <SelectionToolButton {...toolProps} />
         )}
-        {app.actionManager.renderAction("duplicateSelection", {
+        {actionManager.renderAction("duplicateSelection", {
           testId: "toolbar-duplicate",
         })}
         <RectangleToolButton {...toolProps} />
