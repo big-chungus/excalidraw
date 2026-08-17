@@ -235,6 +235,8 @@ export type ToolButtonComponentProps = {
    * keybinding badge) — used on mobile where there's no keyboard
    */
   hideShortcut?: boolean;
+  /** omit the native title so a parent Tooltip can own the hover label */
+  hideTitle?: boolean;
 };
 
 type ToolButtonBehavior = {
@@ -271,6 +273,7 @@ const createToolButton = (
     activeTool,
     hideKeyBinding,
     hideShortcut,
+    hideTitle,
   }: ToolButtonComponentProps) => {
     const label = capitalizeString(t(`toolBar.${type}`));
     const shortcut = hideShortcut ? null : getToolShortcut(shortcutType);
@@ -282,7 +285,9 @@ const createToolButton = (
         icon={config.icon}
         checked={activeTool.type === type}
         disabled={isToolButtonDisabled(app, type)}
-        title={shortcut ? `${label} — ${shortcut}` : label}
+        title={
+          hideTitle ? undefined : shortcut ? `${label} — ${shortcut}` : label
+        }
         keyBindingLabel={
           hideKeyBinding || hideShortcut
             ? undefined

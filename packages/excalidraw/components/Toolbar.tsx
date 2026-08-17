@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useState } from "react";
 
-import { KEYS } from "@excalidraw/common";
+import { KEYS, capitalizeString } from "@excalidraw/common";
 
 import { useTunnels } from "../context/tunnels";
 import { t } from "../i18n";
@@ -9,6 +9,7 @@ import { t } from "../i18n";
 import { useEditorInterface, useStylesPanelMode } from "./App";
 import { HintViewer } from "./HintViewer";
 import { Island } from "./Island";
+import { Tooltip } from "./Tooltip";
 import { LockButton } from "./LockButton";
 import { PenModeButton } from "./PenModeButton";
 import Stack from "./Stack";
@@ -268,7 +269,13 @@ export const Toolbar = ({
           </>
         )}
 
-        <HandToolButton {...toolProps} hideKeyBinding />
+        <Tooltip
+          label={`${capitalizeString(t("toolBar.hand"))} — ${getToolShortcut(
+            "hand",
+          )}`}
+        >
+          <HandToolButton {...toolProps} hideKeyBinding hideTitle />
+        </Tooltip>
         {isCompactStylesPanel ? (
           <SelectionToolPopover {...toolProps} setAppState={setAppState} />
         ) : appState.preferredSelectionTool.type === "lasso" ? (

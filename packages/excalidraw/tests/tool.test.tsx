@@ -4,12 +4,13 @@ import { vi } from "vitest";
 import {
   CURSOR_TYPE,
   resolvablePromise,
+  THEME,
   updateActiveTool,
 } from "@excalidraw/common";
 
 import { Excalidraw } from "../index";
 
-import { findShapeByKey } from "../components/Tools";
+import { findShapeByKey, getToolShortcut } from "../components/Tools";
 
 import { API } from "./helpers/api";
 import { Pointer } from "./helpers/ui";
@@ -347,4 +348,51 @@ describe("props.activeTool (forced tool)", () => {
     );
     expect(h.state.activeTool.type).toBe("laser");
   });
+});
+
+describe("hand tool shortcut tooltip", () => {
+  const getHandButton = () =>
+    GlobalTestState.renderResult.container.querySelector<HTMLButtonElement>(
+      '[data-testid="toolbar-hand"]',
+    )!;
+
+  const hoverHandTool = () => {
+    const wrapper = getHandButton().closest(".excalidraw-tooltip-wrapper");
+    expect(wrapper).not.toBeNull();
+    fireEvent.pointerEnter(wrapper!);
+  };
+
+  afterEach(() => {
+    document
+      .querySelector(".excalidraw-tooltip")
+      ?.classList.remove("excalidraw-tooltip--visible");
+  });
+
+  it("shows the H shortcut on hover", async () => {
+    expect(getToolShortcut("hand")).toBe("H");
+
+    await render(<Excalidraw />);
+
+    hoverHandTool();
+
+    const tooltip = document.querySelector(".excalidraw-tooltip--visible");
+    expect(tooltip).not.toBeNull();
+    expect(tooltip?.textContent).toContain(getToolShortcut("hand"));
+    expect(getHandButton().getAttribute("aria-keyshortcuts")).toBe(
+      getToolShortcut("hand"),
+    );
+  });
+
+  it.each([THEME.LIGHT, THEME.DARK])(
+    "shows the same H shortcut tooltip in %s theme",
+    async (theme) => {
+      await render(<Excalidraw theme={theme} />);
+
+      hoverHandTool();
+
+      const tooltip = document.querySelector(".excalidraw-tooltip--visible");
+      expect(tooltip).not.toBeNull();
+      expect(tooltip?.textContent).toContain(getToolShortcut("hand"));
+    },
+  );
 });
