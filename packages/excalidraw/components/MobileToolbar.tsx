@@ -59,6 +59,7 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
   useEffect(() => {
     if (
       activeTool.type === "rectangle" ||
+      activeTool.type === "speechBubble" ||
       activeTool.type === "diamond" ||
       activeTool.type === "ellipse"
     ) {
@@ -81,14 +82,14 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
 
   const { TTDDialogTriggerTunnel } = useTunnels();
 
-  const SHAPE_TOOLS = (["rectangle", "diamond", "ellipse"] as const).map(
-    (type) => ({
-      type,
-      icon: TOOLS[type].icon,
-      title: capitalizeString(t(`toolBar.${type}`)),
-      fillable: TOOLS[type].fillable,
-    }),
-  );
+  const SHAPE_TOOLS = (
+    ["rectangle", "speechBubble", "diamond", "ellipse"] as const
+  ).map((type) => ({
+    type,
+    icon: TOOLS[type].icon,
+    title: capitalizeString(t(`toolBar.${type}`)),
+    fillable: TOOLS[type].fillable,
+  }));
 
   const LINEAR_ELEMENT_TOOLS = (["arrow", "line"] as const).map((type) => ({
     type,
@@ -171,7 +172,7 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
       {/* Eraser */}
       <EraserToolButton {...toolProps} hideShortcut />
 
-      {/* Rectangle/Diamond/Ellipse */}
+      {/* Rectangle/Speech bubble/Diamond/Ellipse */}
       <ToolPopover
         app={app}
         options={SHAPE_TOOLS}
@@ -181,6 +182,7 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
         onToolChange={(type: string) => {
           if (
             type === "rectangle" ||
+            type === "speechBubble" ||
             type === "diamond" ||
             type === "ellipse"
           ) {

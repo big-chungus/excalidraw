@@ -1,4 +1,5 @@
 import { ROUNDNESS } from "@excalidraw/common";
+import { getElementShape } from "@excalidraw/element";
 import type {
   ExcalidrawSpeechBubbleElement,
   ExcalidrawTextElement,
@@ -12,7 +13,7 @@ import * as exportUtils from "../scene/export";
 import { API } from "./helpers/api";
 import { Keyboard, Pointer } from "./helpers/ui";
 import { getTextEditor, updateTextEditor } from "./queries/dom";
-import { fireEvent, render, unmountComponent } from "./test-utils";
+import { fireEvent, render, unmountComponent, waitFor } from "./test-utils";
 
 unmountComponent();
 
@@ -43,6 +44,12 @@ describe("speech bubble", () => {
       width: 200,
       height: 120,
     });
+    expect(
+      getElementShape(
+        h.elements[0],
+        h.app.scene.getNonDeletedElementsMap(),
+      ),
+    ).toMatchObject({ type: "polygon", data: { length: 7 } });
   });
 
   it("binds and wraps text on double click", async () => {
@@ -100,5 +107,29 @@ describe("speech bubble", () => {
     const renderedBubble = svg.querySelector(`[data-id="${bubble.id}"]`);
     expect(renderedBubble).not.toBeNull();
     expect(renderedBubble?.querySelector("path")).not.toBeNull();
+  });
+
+  it("is available from the mobile shape toolbar", async () => {
+    const { container } = await render(
+      <Excalidraw UIOptions={{ getFormFactor: () => "phone" }} />,
+    );
+    fireEvent.resize(window);
+    await waitFor(() =>
+      expect(h.app.editorInterface.formFactor).toBe("phone"),
+    );
+
+    fireEvent.click(
+      container.querySelector('[data-testid="toolbar-rectangle"]')!,
+    );
+
+    expect(
+      await waitFor(() => {
+        const option = document.querySelector(
+          '.tool-popover-content [data-testid="toolbar-speechBubble"]',
+        );
+        expect(option).not.toBeNull();
+        return option;
+      }),
+    ).not.toBeNull();
   });
 });

@@ -14,6 +14,7 @@ import {
 import {
   pointFrom,
   pointDistance,
+  polygon,
   type LocalPoint,
   pointRotateRads,
 } from "@excalidraw/math";
@@ -65,6 +66,7 @@ import {
   getElementAbsoluteCoords,
 } from "./bounds";
 import { shouldTestInside } from "./collision";
+import { getSpeechBubbleBodyHeight } from "./speechBubble";
 
 import type {
   ExcalidrawElement,
@@ -816,8 +818,7 @@ const _generateElementShape = (
     case "speechBubble": {
       const w = element.width;
       const h = element.height;
-      const tailHeight = Math.min(28, h * 0.22);
-      const bodyHeight = h - tailHeight;
+      const bodyHeight = getSpeechBubbleBodyHeight(h);
       const radius = Math.min(
         Math.max(8, getCornerRadius(Math.min(w, bodyHeight), element)),
         bodyHeight / 2,
@@ -1107,7 +1108,6 @@ export const getElementShape = <Point extends GlobalPoint | LocalPoint>(
 ): GeometricShape<Point> => {
   switch (element.type) {
     case "rectangle":
-    case "speechBubble":
     case "diamond":
     case "frame":
     case "magicframe":
@@ -1117,6 +1117,34 @@ export const getElementShape = <Point extends GlobalPoint | LocalPoint>(
     case "text":
     case "selection":
       return getPolygonShape(element);
+    case "speechBubble": {
+      const center = pointFrom<Point>(
+        element.x + element.width / 2,
+        element.y + element.height / 2,
+      );
+      const bodyBottom = element.y + getSpeechBubbleBodyHeight(element.height);
+      const tailCenter = element.x + element.width / 2;
+      const tailHalfWidth = Math.min(element.width * 0.14, 24);
+      const rotate = (x: number, y: number) =>
+        pointRotateRads(
+          pointFrom<Point>(x, y),
+          center,
+          element.angle,
+        );
+
+      return {
+        type: "polygon",
+        data: polygon(
+          rotate(element.x, element.y),
+          rotate(element.x + element.width, element.y),
+          rotate(element.x + element.width, bodyBottom),
+          rotate(tailCenter + tailHalfWidth, bodyBottom),
+          rotate(tailCenter, element.y + element.height),
+          rotate(tailCenter - tailHalfWidth, bodyBottom),
+          rotate(element.x, bodyBottom),
+        ),
+      };
+    }
     case "arrow":
     case "line": {
       const roughShape = ShapeCache.generateElementShape(element, null)[0];

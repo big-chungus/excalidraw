@@ -21,6 +21,10 @@ import {
 import { LinearElementEditor } from "./linearElementEditor";
 
 import { measureText } from "./textMeasurements";
+import {
+  getSpeechBubbleBodyHeight,
+  getSpeechBubbleHeightForBodyHeight,
+} from "./speechBubble";
 import { wrapText } from "./textWrapping";
 import {
   isBoundToContainer,
@@ -107,10 +111,12 @@ export const redrawTextBoundingBox = (
     if (!isArrowElement(container) && metrics.height > maxContainerHeight) {
       const nextHeight =
         container.type === "speechBubble"
-          ? computeContainerDimensionForBoundText(
-              metrics.height,
-              container.type,
-            ) / 0.78
+          ? getSpeechBubbleHeightForBodyHeight(
+              computeContainerDimensionForBoundText(
+                metrics.height,
+                container.type,
+              ),
+            )
           : computeContainerDimensionForBoundText(
               metrics.height,
               container.type,
@@ -521,7 +527,7 @@ export const getBoundTextMaxHeight = (
     return Math.round(height / 2) - BOUND_TEXT_PADDING * 2;
   }
   if (container.type === "speechBubble") {
-    return height * 0.78 - BOUND_TEXT_PADDING * 2;
+    return getSpeechBubbleBodyHeight(height) - BOUND_TEXT_PADDING * 2;
   }
   return height - BOUND_TEXT_PADDING * 2;
 };

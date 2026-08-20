@@ -52,7 +52,6 @@ export const hasFreedrawMode = (type: ElementOrToolType) => type === "freedraw";
 
 export const canChangeRoundness = (type: ElementOrToolType) =>
   type === "rectangle" ||
-  type === "speechBubble" ||
   type === "iframe" ||
   type === "embeddable" ||
   type === "line" ||
