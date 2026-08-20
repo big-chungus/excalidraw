@@ -49,7 +49,7 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
   const activeTool = app.state.activeTool;
   const [isOtherShapesMenuOpen, setIsOtherShapesMenuOpen] = useState(false);
   const [lastActiveGenericShape, setLastActiveGenericShape] = useState<
-    "rectangle" | "diamond" | "ellipse"
+    "rectangle" | "speechBubble" | "diamond" | "ellipse"
   >("rectangle");
   const [lastActiveLinearElement, setLastActiveLinearElement] = useState<
     "arrow" | "line"
