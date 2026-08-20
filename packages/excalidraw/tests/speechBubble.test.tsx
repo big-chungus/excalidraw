@@ -94,7 +94,6 @@ describe("speech bubble", () => {
       {
         exportBackground: false,
         viewBackgroundColor: "#ffffff",
-        files: {},
       },
       null,
     );
