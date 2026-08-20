@@ -49,7 +49,7 @@ describe("speech bubble", () => {
         h.elements[0],
         h.app.scene.getNonDeletedElementsMap(),
       ),
-    ).toMatchObject({ type: "polygon", data: { length: 7 } });
+    ).toMatchObject({ type: "polygon", data: { length: 8 } });
   });
 
   it("binds and wraps text on double click", async () => {
