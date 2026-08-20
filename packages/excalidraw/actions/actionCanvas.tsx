@@ -3,7 +3,6 @@ import {
   MAX_ZOOM,
   MIN_ZOOM,
   THEME,
-  ZOOM_STEP,
   CODES,
   KEYS,
 } from "@excalidraw/common";
@@ -43,6 +42,8 @@ import { getShortcutKey } from "../shortcut";
 import { register } from "./register";
 
 import type { AppState } from "../types";
+
+const ZOOM_BUTTON_STEP = 0.15;
 
 export const actionChangeViewBackgroundColor = register<Partial<AppState>>({
   name: "changeViewBackgroundColor",
@@ -140,7 +141,7 @@ export const actionZoomIn = register({
         {
           viewportX: appState.width / 2 + appState.offsetLeft,
           viewportY: appState.height / 2 + appState.offsetTop,
-          nextZoom: getNormalizedZoom(appState.zoom.value + ZOOM_STEP),
+          nextZoom: getNormalizedZoom(appState.zoom.value + ZOOM_BUTTON_STEP),
         },
         appState,
       ),
@@ -187,7 +188,7 @@ export const actionZoomOut = register({
         {
           viewportX: appState.width / 2 + appState.offsetLeft,
           viewportY: appState.height / 2 + appState.offsetTop,
-          nextZoom: getNormalizedZoom(appState.zoom.value - ZOOM_STEP),
+          nextZoom: getNormalizedZoom(appState.zoom.value - ZOOM_BUTTON_STEP),
         },
         appState,
       ),
