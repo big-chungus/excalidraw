@@ -560,7 +560,7 @@
   "toast": {
     "addedToLibrary": "Added to library",
     "copyStyles": "Copied styles.",
-    "copyToClipboard": "Copied to clipboard.",
+    "copyToClipboard": "Copied to clipbord.",
     "copyToClipboardAsPng": "Copied {{exportSelection}} to clipboard as PNG\n({{exportColorScheme}})",
     "copyToClipboardAsSvg": "Copied {{exportSelection}} to clipboard as SVG\n({{exportColorScheme}})",
     "fileSaved": "File saved.",
@@ -601,7 +601,7 @@
       "menuHint": "Export, preferences, and more...",
       "center_heading": "Diagrams. Made. Simple.",
       "toolbarHint": "Pick a tool & Strat drawing!",
-      "helpHint": "Shortcuts & help"
+      "helpHint": "Shortucts & help"
     }
   },
   "colorPicker": {
