@@ -41,7 +41,6 @@ describe("speech bubble", () => {
       y: 20,
       width: 200,
       height: 120,
-      roundness: { type: ROUNDNESS.ADAPTIVE_RADIUS },
     });
   });
 
