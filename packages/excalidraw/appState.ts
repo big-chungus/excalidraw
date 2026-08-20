@@ -152,7 +152,7 @@ const APP_STATE_STORAGE_CONF = (<
   showWelcomeScreen: { browser: true, export: false, server: false },
   theme: { browser: true, export: false, server: false },
   collaborators: { browser: false, export: false, server: false },
-  currentItemBackgroundColor: { browser: true, export: false, server: false },
+  currentItemBackgroundColor: { browser: false, export: false, server: false },
   currentItemEndArrowhead: { browser: true, export: false, server: false },
   currentItemFillStyle: { browser: true, export: false, server: false },
   currentItemFontFamily: { browser: true, export: false, server: false },
