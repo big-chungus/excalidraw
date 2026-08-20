@@ -50,6 +50,7 @@ import type {
   ExcalidrawLinearElement,
   ExcalidrawRectangleElement,
   ExcalidrawSelectionElement,
+  ExcalidrawSpeechBubbleElement,
   ExcalidrawTextElement,
 } from "@excalidraw/element/types";
 import type { Curve, LineSegment, Polygon, Radians } from "@excalidraw/math";
@@ -104,6 +105,7 @@ export type GeometricShape<Point extends GlobalPoint | LocalPoint> =
 
 type RectangularElement =
   | ExcalidrawRectangleElement
+  | ExcalidrawSpeechBubbleElement
   | ExcalidrawDiamondElement
   | ExcalidrawFrameLikeElement
   | ExcalidrawEmbeddableElement

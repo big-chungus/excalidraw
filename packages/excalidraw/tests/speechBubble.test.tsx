@@ -2,6 +2,7 @@ import { ROUNDNESS } from "@excalidraw/common";
 import type {
   ExcalidrawSpeechBubbleElement,
   ExcalidrawTextElement,
+  NonDeletedExcalidrawElement,
 } from "@excalidraw/element/types";
 
 import { Excalidraw } from "../index";
@@ -89,7 +90,7 @@ describe("speech bubble", () => {
     });
 
     const svg = await exportUtils.exportToSvg(
-      restored,
+      restored as NonDeletedExcalidrawElement[],
       {
         exportBackground: false,
         viewBackgroundColor: "#ffffff",

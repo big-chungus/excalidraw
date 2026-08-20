@@ -534,6 +534,7 @@ export const convertToExcalidrawElements = (
 
     switch (element.type) {
       case "rectangle":
+      case "speechBubble":
       case "ellipse":
       case "diamond": {
         const width =
@@ -666,6 +667,7 @@ export const convertToExcalidrawElements = (
 
     switch (element.type) {
       case "rectangle":
+      case "speechBubble":
       case "ellipse":
       case "diamond":
       case "arrow": {
