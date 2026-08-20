@@ -182,6 +182,7 @@ export const isBindableElement = <T extends ExcalidrawElement>(
     element != null &&
     (!element.locked || includeLocked === true) &&
     (element.type === "rectangle" ||
+      element.type === "speechBubble" ||
       element.type === "diamond" ||
       element.type === "ellipse" ||
       element.type === "image" ||
@@ -199,6 +200,7 @@ export const isRectanguloidElement = <T extends ExcalidrawElement>(
   return (
     element != null &&
     (element.type === "rectangle" ||
+      element.type === "speechBubble" ||
       element.type === "diamond" ||
       element.type === "image" ||
       element.type === "iframe" ||
@@ -217,6 +219,7 @@ export const isRectangularElement = <T extends ExcalidrawElement>(
   return (
     element != null &&
     (element.type === "rectangle" ||
+      element.type === "speechBubble" ||
       element.type === "image" ||
       element.type === "text" ||
       element.type === "iframe" ||
@@ -235,6 +238,7 @@ export const isTextBindableContainer = <T extends ExcalidrawElement>(
     element != null &&
     (!element.locked || includeLocked === true) &&
     (element.type === "rectangle" ||
+      element.type === "speechBubble" ||
       element.type === "diamond" ||
       element.type === "ellipse" ||
       isArrowElement(element))
@@ -252,6 +256,7 @@ export const isExcalidrawElement = (
     case "text":
     case "diamond":
     case "rectangle":
+    case "speechBubble":
     case "iframe":
     case "embeddable":
     case "ellipse":
@@ -308,6 +313,7 @@ export const isArrowBoundToElement = (element: ExcalidrawArrowElement) => {
 
 export const isUsingAdaptiveRadius = (type: string) =>
   type === "rectangle" ||
+  type === "speechBubble" ||
   type === "embeddable" ||
   type === "iframe" ||
   type === "image";
@@ -397,6 +403,7 @@ export const canBecomePolygon = (
 export const isEligibleFrameChildType = (type: ElementOrToolType) => {
   switch (type) {
     case "rectangle":
+    case "speechBubble":
     case "diamond":
     case "ellipse":
     case "arrow":

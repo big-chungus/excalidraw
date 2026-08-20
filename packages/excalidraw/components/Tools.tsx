@@ -14,6 +14,7 @@ import { ToolPopover } from "./ToolPopover";
 import {
   SelectionIcon,
   RectangleIcon,
+  SpeechBubbleIcon,
   DiamondIcon,
   EllipseIcon,
   ArrowIcon,
@@ -81,6 +82,10 @@ export const TOOLS = defineTools({
     icon: RectangleIcon,
     letterKey: KEYS.R,
     numericKey: KEYS["2"],
+    fillable: true,
+  },
+  speechBubble: {
+    icon: SpeechBubbleIcon,
     fillable: true,
   },
   diamond: {
@@ -317,6 +322,7 @@ const createToolButton = (
 
 export const HandToolButton = createToolButton("hand");
 export const RectangleToolButton = createToolButton("rectangle");
+export const SpeechBubbleToolButton = createToolButton("speechBubble");
 export const DiamondToolButton = createToolButton("diamond");
 export const EllipseToolButton = createToolButton("ellipse");
 export const ArrowToolButton = createToolButton("arrow");

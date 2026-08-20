@@ -317,6 +317,7 @@
     "lasso": "Lasso selection",
     "image": "Insert image",
     "rectangle": "Rectangle",
+    "speechBubble": "Speech bubble",
     "diamond": "Diamond",
     "ellipse": "Ellipse",
     "arrow": "Arrow",
@@ -345,6 +346,7 @@
   },
   "element": {
     "rectangle": "Rectangle",
+    "speechBubble": "Speech bubble",
     "diamond": "Diamond",
     "ellipse": "Ellipse",
     "arrow": "Arrow",

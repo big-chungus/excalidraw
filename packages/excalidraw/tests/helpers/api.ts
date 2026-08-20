@@ -293,10 +293,15 @@ export class API {
     };
     switch (type) {
       case "rectangle":
+      case "speechBubble":
       case "diamond":
       case "ellipse":
         element = newElement({
-          type: type as "rectangle" | "diamond" | "ellipse",
+          type: type as
+            | "rectangle"
+            | "speechBubble"
+            | "diamond"
+            | "ellipse",
           ...base,
         });
         break;

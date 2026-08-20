@@ -105,10 +105,16 @@ export const redrawTextBoundingBox = (
     const maxContainerWidth = getBoundTextMaxWidth(container, textElement);
 
     if (!isArrowElement(container) && metrics.height > maxContainerHeight) {
-      const nextHeight = computeContainerDimensionForBoundText(
-        metrics.height,
-        container.type,
-      );
+      const nextHeight =
+        container.type === "speechBubble"
+          ? computeContainerDimensionForBoundText(
+              metrics.height,
+              container.type,
+            ) / 0.78
+          : computeContainerDimensionForBoundText(
+              metrics.height,
+              container.type,
+            );
       scene.mutateElement(container, { height: nextHeight });
       updateOriginalContainerCache(container.id, nextHeight);
     }
@@ -436,6 +442,7 @@ export const suppportsHorizontalAlign = (
 
 const VALID_CONTAINER_TYPES = new Set([
   "rectangle",
+  "speechBubble",
   "ellipse",
   "diamond",
   "arrow",
@@ -512,6 +519,9 @@ export const getBoundTextMaxHeight = (
     // The height of the largest rectangle inscribed inside a rhombus is
     // Math.round(height / 2) - https://github.com/excalidraw/excalidraw/pull/6265
     return Math.round(height / 2) - BOUND_TEXT_PADDING * 2;
+  }
+  if (container.type === "speechBubble") {
+    return height * 0.78 - BOUND_TEXT_PADDING * 2;
   }
   return height - BOUND_TEXT_PADDING * 2;
 };

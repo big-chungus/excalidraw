@@ -146,6 +146,7 @@ const renderElementToSvg = (
       throw new Error("Selection rendering is not supported for SVG");
     }
     case "rectangle":
+    case "speechBubble":
     case "diamond":
     case "ellipse": {
       const shape = ShapeCache.generateElementShape(element, renderConfig);

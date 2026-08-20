@@ -696,6 +696,7 @@ export const restoreElement = (
     // generic elements
     case "ellipse":
     case "rectangle":
+    case "speechBubble":
     case "diamond":
     case "iframe":
     case "embeddable":

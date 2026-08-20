@@ -338,6 +338,17 @@ export const RectangleIcon = createIcon(
   tablerIconProps,
 );
 
+export const SpeechBubbleIcon = createIcon(
+  <path
+    d="M5 5.5h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-5l-3 3v-3H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinejoin="round"
+  />,
+  tablerIconProps,
+);
+
 // tabler-icons: square-rotated
 export const DiamondIcon = createIcon(
   <g strokeWidth="1.5">

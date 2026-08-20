@@ -38,6 +38,7 @@ import {
   LassoToolButton,
   LineToolButton,
   RectangleToolButton,
+  SpeechBubbleToolButton,
   SelectionToolButton,
   SelectionToolPopover,
   TextToolButton,
@@ -277,6 +278,7 @@ export const Toolbar = ({
           <SelectionToolButton {...toolProps} />
         )}
         <RectangleToolButton {...toolProps} />
+        <SpeechBubbleToolButton {...toolProps} />
         <DiamondToolButton {...toolProps} />
         <EllipseToolButton {...toolProps} />
         <ArrowToolButton {...toolProps} />

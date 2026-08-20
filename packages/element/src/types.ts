@@ -97,6 +97,10 @@ export type ExcalidrawEllipseElement = _ExcalidrawElementBase & {
   type: "ellipse";
 };
 
+export type ExcalidrawSpeechBubbleElement = _ExcalidrawElementBase & {
+  type: "speechBubble";
+};
+
 export type ExcalidrawEmbeddableElement = _ExcalidrawElementBase &
   Readonly<{
     type: "embeddable";
@@ -181,7 +185,8 @@ export type ExcalidrawGenericElement =
   | ExcalidrawSelectionElement
   | ExcalidrawRectangleElement
   | ExcalidrawDiamondElement
-  | ExcalidrawEllipseElement;
+  | ExcalidrawEllipseElement
+  | ExcalidrawSpeechBubbleElement;
 
 export type ExcalidrawFlowchartNodeElement =
   | ExcalidrawRectangleElement
@@ -190,6 +195,7 @@ export type ExcalidrawFlowchartNodeElement =
 
 export type ExcalidrawRectanguloidElement =
   | ExcalidrawRectangleElement
+  | ExcalidrawSpeechBubbleElement
   | ExcalidrawImageElement
   | ExcalidrawTextElement
   | ExcalidrawFreeDrawElement
@@ -260,6 +266,7 @@ export type ExcalidrawBindableElement =
   | ExcalidrawRectangleElement
   | ExcalidrawDiamondElement
   | ExcalidrawEllipseElement
+  | ExcalidrawSpeechBubbleElement
   | ExcalidrawTextElement
   | ExcalidrawImageElement
   | ExcalidrawIframeElement
@@ -271,6 +278,7 @@ export type ExcalidrawTextContainer =
   | ExcalidrawRectangleElement
   | ExcalidrawDiamondElement
   | ExcalidrawEllipseElement
+  | ExcalidrawSpeechBubbleElement
   | ExcalidrawArrowElement;
 
 export type ExcalidrawTextElementWithContainer = {

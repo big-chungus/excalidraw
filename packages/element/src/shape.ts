@@ -226,6 +226,7 @@ export const generateRoughOptions = (
 
   switch (element.type) {
     case "rectangle":
+    case "speechBubble":
     case "iframe":
     case "embeddable":
     case "diamond":
@@ -812,6 +813,39 @@ const _generateElementShape = (
       }
       return shape;
     }
+    case "speechBubble": {
+      const w = element.width;
+      const h = element.height;
+      const tailHeight = Math.min(28, h * 0.22);
+      const bodyHeight = h - tailHeight;
+      const radius = Math.min(
+        Math.max(8, getCornerRadius(Math.min(w, bodyHeight), element)),
+        bodyHeight / 2,
+        w / 2,
+      );
+      const tailHalfWidth = Math.min(w * 0.14, 24);
+      const tailCenter = w / 2;
+      const path = [
+        `M ${radius} 0`,
+        `L ${w - radius} 0`,
+        `Q ${w} 0 ${w} ${radius}`,
+        `L ${w} ${bodyHeight - radius}`,
+        `Q ${w} ${bodyHeight} ${w - radius} ${bodyHeight}`,
+        `L ${tailCenter + tailHalfWidth} ${bodyHeight}`,
+        `L ${tailCenter} ${h}`,
+        `L ${tailCenter - tailHalfWidth} ${bodyHeight}`,
+        `L ${radius} ${bodyHeight}`,
+        `Q 0 ${bodyHeight} 0 ${bodyHeight - radius}`,
+        `L 0 ${radius}`,
+        `Q 0 0 ${radius} 0`,
+        "Z",
+      ].join(" ");
+
+      return generator.path(
+        path,
+        generateRoughOptions(element, true, isDarkMode),
+      );
+    }
     case "diamond": {
       let shape: ElementShapes[typeof element.type];
 
@@ -1073,6 +1107,7 @@ export const getElementShape = <Point extends GlobalPoint | LocalPoint>(
 ): GeometricShape<Point> => {
   switch (element.type) {
     case "rectangle":
+    case "speechBubble":
     case "diamond":
     case "frame":
     case "magicframe":

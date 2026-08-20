@@ -575,6 +575,7 @@ export const rendersOpaqueFill = (element: ExcalidrawElement): boolean => {
  */
 const FILL_BOUNDARY_TYPES = new Set<ExcalidrawElement["type"]>([
   "rectangle",
+  "speechBubble",
   "diamond",
   "ellipse",
   "frame",

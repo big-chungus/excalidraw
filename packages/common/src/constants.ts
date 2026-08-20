@@ -486,6 +486,7 @@ export const TOOL_TYPE = {
   selection: "selection",
   lasso: "lasso",
   rectangle: "rectangle",
+  speechBubble: "speechBubble",
   diamond: "diamond",
   ellipse: "ellipse",
   arrow: "arrow",

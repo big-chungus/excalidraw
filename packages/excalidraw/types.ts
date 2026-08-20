@@ -148,6 +148,7 @@ export type ToolType =
   | "selection"
   | "lasso"
   | "rectangle"
+  | "speechBubble"
   | "diamond"
   | "ellipse"
   | "arrow"
