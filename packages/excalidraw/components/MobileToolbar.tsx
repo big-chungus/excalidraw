@@ -7,6 +7,7 @@ import { t } from "../i18n";
 
 import { useTunnels } from "../context/tunnels";
 
+import { ToolbarAlignActions } from "./Actions";
 import DropdownMenu from "./dropdownMenu/DropdownMenu";
 import { ToolPopover } from "./ToolPopover";
 import {
@@ -38,14 +39,22 @@ import {
 import "./ToolIcon.scss";
 import "./MobileToolbar.scss";
 
+import type { ActionManager } from "../actions/manager";
 import type { AppClassProperties, UIAppState } from "../types";
 
 type MobileToolbarProps = {
   app: AppClassProperties;
+  appState: UIAppState;
   setAppState: React.Component<any, UIAppState>["setState"];
+  renderAction: ActionManager["renderAction"];
 };
 
-export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
+export const MobileToolbar = ({
+  app,
+  appState,
+  setAppState,
+  renderAction,
+}: MobileToolbarProps) => {
   const activeTool = app.state.activeTool;
   const [isOtherShapesMenuOpen, setIsOtherShapesMenuOpen] = useState(false);
   const [lastActiveGenericShape, setLastActiveGenericShape] = useState<
@@ -355,6 +364,11 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
           )}
         </DropdownMenu.Content>
       </DropdownMenu>
+      <ToolbarAlignActions
+        app={app}
+        appState={appState}
+        renderAction={renderAction}
+      />
     </div>
   );
 };

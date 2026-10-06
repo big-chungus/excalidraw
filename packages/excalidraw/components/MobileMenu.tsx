@@ -116,7 +116,14 @@ export const MobileMenu = ({
   };
 
   const renderToolbar = () => {
-    return <MobileToolbar app={app} setAppState={setAppState} />;
+    return (
+      <MobileToolbar
+        app={app}
+        appState={appState}
+        setAppState={setAppState}
+        renderAction={actionManager.renderAction}
+      />
+    );
   };
 
   const shouldRenderScrollBackToContent =

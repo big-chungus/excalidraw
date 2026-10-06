@@ -6,6 +6,7 @@ import { KEYS } from "@excalidraw/common";
 import { useTunnels } from "../context/tunnels";
 import { t } from "../i18n";
 
+import { ToolbarAlignActions } from "./Actions";
 import { useEditorInterface, useStylesPanelMode } from "./App";
 import { HintViewer } from "./HintViewer";
 import { Island } from "./Island";
@@ -43,6 +44,7 @@ import {
   TextToolButton,
 } from "./Tools";
 
+import type { ActionManager } from "../actions/manager";
 import type {
   AppClassProperties,
   AppProps,
@@ -209,6 +211,7 @@ export const Toolbar = ({
   onPenModeToggle,
   onLockToggle,
   heading,
+  renderAction,
 }: {
   app: AppClassProperties;
   appState: UIAppState;
@@ -217,6 +220,7 @@ export const Toolbar = ({
   onPenModeToggle: AppClassProperties["togglePenMode"];
   onLockToggle: () => void;
   heading: React.ReactNode;
+  renderAction: ActionManager["renderAction"];
 }) => {
   const editorInterface = useEditorInterface();
   const isCompactStylesPanel = useStylesPanelMode() === "compact";
@@ -299,6 +303,11 @@ export const Toolbar = ({
           app={app}
           activeTool={activeTool}
           setAppState={setAppState}
+        />
+        <ToolbarAlignActions
+          app={app}
+          appState={appState}
+          renderAction={renderAction}
         />
       </Stack.Row>
     </Island>
