@@ -130,6 +130,49 @@ const AlignFieldset = ({
 };
 
 /**
+ * Align left / center / right on the drawing toolbar.
+ * Same enablement as the styles-panel align controls: multi-select only.
+ */
+export const ToolbarAlignActions = ({
+  app,
+  appState,
+  renderAction,
+}: {
+  app: AppClassProperties;
+  appState: UIAppState;
+  renderAction: ActionManager["renderAction"];
+}) => {
+  const elementsMap = app.scene.getNonDeletedElementsMap();
+  const targetElements = getTargetElements(elementsMap, appState);
+  if (
+    !getShapeActionPredicates(appState, targetElements, elementsMap, app).align
+  ) {
+    return null;
+  }
+
+  const isRTL = document.documentElement.getAttribute("dir") === "rtl";
+
+  return (
+    <div className="App-toolbar__align" data-testid="toolbar-align">
+      <div className="App-toolbar__divider" />
+      {isRTL ? (
+        <>
+          {renderAction("alignRight")}
+          {renderAction("alignHorizontallyCentered")}
+          {renderAction("alignLeft")}
+        </>
+      ) : (
+        <>
+          {renderAction("alignLeft")}
+          {renderAction("alignHorizontallyCentered")}
+          {renderAction("alignRight")}
+        </>
+      )}
+    </div>
+  );
+};
+
+/**
  * Full styles panel: the wide, always-expanded layout used on desktop when the
  * UI is in "full" mode.
  */

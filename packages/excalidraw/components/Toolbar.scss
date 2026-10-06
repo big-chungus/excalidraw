@@ -21,6 +21,12 @@
       align-self: center;
       background-color: var(--default-border-color);
     }
+
+    &__align {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
   }
 
   .App-toolbar__extra-tools-trigger {
