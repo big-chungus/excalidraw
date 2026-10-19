@@ -67,6 +67,13 @@ export {
   distributeVertically,
 } from "./actionDistribute";
 
+export {
+  actionTidyDiagram,
+  actionConfirmTidyDiagram,
+  actionCancelTidyDiagram,
+  tidyDiagramPreviewAtom,
+} from "./actionTidyDiagram";
+
 export { actionFlipHorizontal, actionFlipVertical } from "./actionFlip";
 
 export {

@@ -387,6 +387,56 @@ exports[`contextMenu element > right-clicking on a group should select whole gro
         },
       },
       {
+        "icon": <svg
+          aria-hidden="true"
+          className=""
+          fill="none"
+          focusable="false"
+          role="img"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              stroke="none"
+            />
+            <path
+              d="M6 21l15 -15l-3 -3l-15 15l3 3"
+            />
+            <path
+              d="M15 6l3 3"
+            />
+            <path
+              d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+            <path
+              d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+          </g>
+        </svg>,
+        "keywords": [
+          "layout",
+          "arrange",
+          "cleanup",
+          "flowchart",
+          "auto",
+        ],
+        "label": "labels.tidyDiagram",
+        "name": "tidyDiagram",
+        "perform": [Function],
+        "predicate": [Function],
+        "trackEvent": {
+          "category": "element",
+        },
+      },
+      {
         "icon": null,
         "label": "labels.autoResize",
         "name": "autoResize",
@@ -5050,6 +5100,56 @@ exports[`contextMenu element > shows 'Group selection' in context menu for multi
         },
       },
       {
+        "icon": <svg
+          aria-hidden="true"
+          className=""
+          fill="none"
+          focusable="false"
+          role="img"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              stroke="none"
+            />
+            <path
+              d="M6 21l15 -15l-3 -3l-15 15l3 3"
+            />
+            <path
+              d="M15 6l3 3"
+            />
+            <path
+              d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+            <path
+              d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+          </g>
+        </svg>,
+        "keywords": [
+          "layout",
+          "arrange",
+          "cleanup",
+          "flowchart",
+          "auto",
+        ],
+        "label": "labels.tidyDiagram",
+        "name": "tidyDiagram",
+        "perform": [Function],
+        "predicate": [Function],
+        "trackEvent": {
+          "category": "element",
+        },
+      },
+      {
         "icon": null,
         "label": "labels.autoResize",
         "name": "autoResize",
@@ -6261,6 +6361,56 @@ exports[`contextMenu element > shows 'Ungroup selection' in context menu for gro
         "keyTest": [Function],
         "label": "labels.group",
         "name": "group",
+        "perform": [Function],
+        "predicate": [Function],
+        "trackEvent": {
+          "category": "element",
+        },
+      },
+      {
+        "icon": <svg
+          aria-hidden="true"
+          className=""
+          fill="none"
+          focusable="false"
+          role="img"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              stroke="none"
+            />
+            <path
+              d="M6 21l15 -15l-3 -3l-15 15l3 3"
+            />
+            <path
+              d="M15 6l3 3"
+            />
+            <path
+              d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+            <path
+              d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+          </g>
+        </svg>,
+        "keywords": [
+          "layout",
+          "arrange",
+          "cleanup",
+          "flowchart",
+          "auto",
+        ],
+        "label": "labels.tidyDiagram",
+        "name": "tidyDiagram",
         "perform": [Function],
         "predicate": [Function],
         "trackEvent": {
@@ -8227,6 +8377,56 @@ exports[`contextMenu element > shows context menu for element > [end of test] ap
         },
       },
       {
+        "icon": <svg
+          aria-hidden="true"
+          className=""
+          fill="none"
+          focusable="false"
+          role="img"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              stroke="none"
+            />
+            <path
+              d="M6 21l15 -15l-3 -3l-15 15l3 3"
+            />
+            <path
+              d="M15 6l3 3"
+            />
+            <path
+              d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+            <path
+              d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+          </g>
+        </svg>,
+        "keywords": [
+          "layout",
+          "arrange",
+          "cleanup",
+          "flowchart",
+          "auto",
+        ],
+        "label": "labels.tidyDiagram",
+        "name": "tidyDiagram",
+        "perform": [Function],
+        "predicate": [Function],
+        "trackEvent": {
+          "category": "element",
+        },
+      },
+      {
         "icon": null,
         "label": "labels.autoResize",
         "name": "autoResize",
@@ -9212,6 +9412,56 @@ exports[`contextMenu element > shows context menu for element > [end of test] ap
         "keyTest": [Function],
         "label": "labels.group",
         "name": "group",
+        "perform": [Function],
+        "predicate": [Function],
+        "trackEvent": {
+          "category": "element",
+        },
+      },
+      {
+        "icon": <svg
+          aria-hidden="true"
+          className=""
+          fill="none"
+          focusable="false"
+          role="img"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              stroke="none"
+            />
+            <path
+              d="M6 21l15 -15l-3 -3l-15 15l3 3"
+            />
+            <path
+              d="M15 6l3 3"
+            />
+            <path
+              d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+            <path
+              d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+          </g>
+        </svg>,
+        "keywords": [
+          "layout",
+          "arrange",
+          "cleanup",
+          "flowchart",
+          "auto",
+        ],
+        "label": "labels.tidyDiagram",
+        "name": "tidyDiagram",
         "perform": [Function],
         "predicate": [Function],
         "trackEvent": {
