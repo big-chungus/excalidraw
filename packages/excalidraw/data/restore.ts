@@ -1184,10 +1184,14 @@ export const restoreAppState = (
         ? { name: DEFAULT_SIDEBAR.name }
         : nextAppState.openSidebar,
     gridSize: getNormalizedGridSize(
-      isFiniteNumber(appState.gridSize) ? appState.gridSize : DEFAULT_GRID_SIZE,
+      isFiniteNumber(nextAppState.gridSize)
+        ? nextAppState.gridSize
+        : DEFAULT_GRID_SIZE,
     ),
     gridStep: getNormalizedGridStep(
-      isFiniteNumber(appState.gridStep) ? appState.gridStep : DEFAULT_GRID_STEP,
+      isFiniteNumber(nextAppState.gridStep)
+        ? nextAppState.gridStep
+        : DEFAULT_GRID_STEP,
     ),
     editingFrame: null,
   };

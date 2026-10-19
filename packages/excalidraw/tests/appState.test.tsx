@@ -1,10 +1,17 @@
 import React from "react";
 
-import { EXPORT_DATA_TYPES, MIME_TYPES } from "@excalidraw/common";
+import {
+  DEFAULT_GRID_SIZE,
+  DEFAULT_GRID_STEP,
+  EXPORT_DATA_TYPES,
+  MIME_TYPES,
+} from "@excalidraw/common";
 
 import type { ExcalidrawTextElement } from "@excalidraw/element/types";
 
-import { getDefaultAppState } from "../appState";
+import { clearAppStateForLocalStorage, getDefaultAppState } from "../appState";
+import { serializeAsJSON } from "../data/json";
+import { restoreAppState } from "../data/restore";
 import { Excalidraw } from "../index";
 
 import { API } from "./helpers/api";
@@ -84,5 +91,81 @@ describe("appState", () => {
     mouse.clickAt(100, 100);
 
     expect((h.elements[0] as ExcalidrawTextElement).fontSize).toBe(16);
+  });
+
+  describe("grid size and step", () => {
+    it("persist to local storage and restore on reload", () => {
+      const stored = clearAppStateForLocalStorage({
+        ...getDefaultAppState(),
+        gridSize: 40,
+        gridStep: 10,
+        gridModeEnabled: true,
+      });
+
+      expect(stored).toMatchObject({
+        gridSize: 40,
+        gridStep: 10,
+        gridModeEnabled: true,
+      });
+
+      const localAppState = JSON.parse(JSON.stringify(stored));
+
+      expect(restoreAppState(localAppState, null)).toMatchObject({
+        gridSize: 40,
+        gridStep: 10,
+        gridModeEnabled: true,
+      });
+    });
+
+    it("keep local values when imported scene has no grid settings", () => {
+      const restored = restoreAppState(
+        { viewBackgroundColor: "#000" },
+        { gridSize: 40, gridStep: 10 },
+      );
+      expect(restored.gridSize).toBe(40);
+      expect(restored.gridStep).toBe(10);
+    });
+
+    it("round-trip through .excalidraw file export", () => {
+      const json = serializeAsJSON(
+        [],
+        { ...getDefaultAppState(), gridSize: 40, gridStep: 10 },
+        {},
+        "local",
+      );
+      const { appState } = JSON.parse(json);
+
+      expect(appState).toMatchObject({ gridSize: 40, gridStep: 10 });
+
+      const restored = restoreAppState(appState, null);
+      expect(restored.gridSize).toBe(40);
+      expect(restored.gridStep).toBe(10);
+    });
+
+    it("clamp out-of-range values on restore", () => {
+      expect(
+        restoreAppState({ gridSize: 500, gridStep: 1000 }, null),
+      ).toMatchObject({ gridSize: 100, gridStep: 100 });
+      expect(
+        restoreAppState({ gridSize: 0, gridStep: -5 }, null),
+      ).toMatchObject({ gridSize: 1, gridStep: 1 });
+      expect(
+        restoreAppState({ gridSize: 40.4, gridStep: 9.6 }, null),
+      ).toMatchObject({ gridSize: 40, gridStep: 10 });
+    });
+
+    it("fall back to defaults for invalid values on restore", () => {
+      for (const invalid of [NaN, Infinity, "40", null, undefined]) {
+        expect(
+          restoreAppState(
+            { gridSize: invalid, gridStep: invalid } as any,
+            null,
+          ),
+        ).toMatchObject({
+          gridSize: DEFAULT_GRID_SIZE,
+          gridStep: DEFAULT_GRID_STEP,
+        });
+      }
+    });
   });
 });
