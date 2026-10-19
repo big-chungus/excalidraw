@@ -41,6 +41,7 @@ import {
   SelectionToolButton,
   SelectionToolPopover,
   TextToolButton,
+  TriangleToolButton,
 } from "./Tools";
 
 import type {
@@ -279,6 +280,7 @@ export const Toolbar = ({
         <RectangleToolButton {...toolProps} />
         <DiamondToolButton {...toolProps} />
         <EllipseToolButton {...toolProps} />
+        <TriangleToolButton {...toolProps} />
         <ArrowToolButton {...toolProps} />
         <LineToolButton {...toolProps} />
         {isCompactStylesPanel ? (

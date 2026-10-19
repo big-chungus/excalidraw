@@ -16,6 +16,7 @@ import {
   RectangleIcon,
   DiamondIcon,
   EllipseIcon,
+  TriangleIcon,
   ArrowIcon,
   LineIcon,
   FreedrawIcon,
@@ -93,6 +94,12 @@ export const TOOLS = defineTools({
     icon: EllipseIcon,
     letterKey: KEYS.O,
     numericKey: KEYS["4"],
+    fillable: true,
+  },
+  triangle: {
+    icon: TriangleIcon,
+    // the numeric row is fully assigned, so triangle is letter-only
+    letterKey: KEYS.Y,
     fillable: true,
   },
   arrow: {
@@ -319,6 +326,7 @@ export const HandToolButton = createToolButton("hand");
 export const RectangleToolButton = createToolButton("rectangle");
 export const DiamondToolButton = createToolButton("diamond");
 export const EllipseToolButton = createToolButton("ellipse");
+export const TriangleToolButton = createToolButton("triangle");
 export const ArrowToolButton = createToolButton("arrow");
 export const LineToolButton = createToolButton("line");
 export const FreedrawToolButton = createToolButton("freedraw");
