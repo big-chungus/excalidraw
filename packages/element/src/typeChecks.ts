@@ -29,6 +29,7 @@ import type {
   ExcalidrawLineElement,
   ExcalidrawFlowchartNodeElement,
   ExcalidrawLinearElementSubType,
+  ExcalidrawTriangleElement,
 } from "./types";
 
 export const isInitializedImageElement = <T extends ExcalidrawElement>(
@@ -100,6 +101,12 @@ export const isFreeDrawElementType = (
   elementType: ExcalidrawElementType,
 ): boolean => {
   return elementType === "freedraw";
+};
+
+export const isTriangleElement = <T extends ExcalidrawElement>(
+  element?: T | null,
+): element is T & ExcalidrawTriangleElement => {
+  return element != null && element.type === "triangle";
 };
 
 export const isLinearElement = <T extends ExcalidrawElement>(
@@ -184,6 +191,7 @@ export const isBindableElement = <T extends ExcalidrawElement>(
     (element.type === "rectangle" ||
       element.type === "diamond" ||
       element.type === "ellipse" ||
+      element.type === "triangle" ||
       element.type === "image" ||
       element.type === "iframe" ||
       element.type === "embeddable" ||
@@ -237,6 +245,7 @@ export const isTextBindableContainer = <T extends ExcalidrawElement>(
     (element.type === "rectangle" ||
       element.type === "diamond" ||
       element.type === "ellipse" ||
+      element.type === "triangle" ||
       isArrowElement(element))
   );
 };
@@ -255,6 +264,7 @@ export const isExcalidrawElement = (
     case "iframe":
     case "embeddable":
     case "ellipse":
+    case "triangle":
     case "arrow":
     case "freedraw":
     case "line":
@@ -277,7 +287,8 @@ export const isFlowchartNodeElement = <T extends ExcalidrawElement>(
   return (
     element.type === "rectangle" ||
     element.type === "ellipse" ||
-    element.type === "diamond"
+    element.type === "diamond" ||
+    element.type === "triangle"
   );
 };
 
@@ -399,6 +410,7 @@ export const isEligibleFrameChildType = (type: ElementOrToolType) => {
     case "rectangle":
     case "diamond":
     case "ellipse":
+    case "triangle":
     case "arrow":
     case "line":
     case "freedraw":
