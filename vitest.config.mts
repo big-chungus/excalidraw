@@ -70,6 +70,14 @@ export default defineConfig({
         find: /^@excalidraw\/laser-pointer\/(.*?)/,
         replacement: path.resolve(__dirname, "./packages/laser-pointer/src/$1"),
       },
+      {
+        // the UMD `main` build can't locate jspdf when loaded under node
+        find: /^svg2pdf\.js$/,
+        replacement: path.resolve(
+          __dirname,
+          "./node_modules/svg2pdf.js/dist/svg2pdf.es.js",
+        ),
+      },
     ],
   },
   //@ts-ignore
