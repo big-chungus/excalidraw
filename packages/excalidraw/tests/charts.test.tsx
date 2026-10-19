@@ -161,4 +161,66 @@ B\t20`,
       },
     });
   });
+
+  const expectedMonthSales = {
+    ok: true,
+    data: {
+      title: "Sales",
+      labels: ["Jan", "Feb", "Mar"],
+      series: [{ title: "Sales", values: [10, 20, 15] }],
+    },
+  };
+
+  it("ignores a blank row in CSV spreadsheet paste", () => {
+    const result = tryParseSpreadsheet(`Month,Sales
+Jan,10
+
+Feb,20
+Mar,15`);
+
+    expect(result).toEqual(expectedMonthSales);
+  });
+
+  it("ignores delimiter-only blank rows from spreadsheet copy", () => {
+    const result = tryParseSpreadsheet(`Month,Sales
+Jan,10
+,
+Feb,20
+Mar,15
+`);
+
+    expect(result).toEqual(expectedMonthSales);
+  });
+
+  it("ignores trailing blank columns and rows", () => {
+    const result = tryParseSpreadsheet(`Month,Sales,
+Jan,10,
+Feb,20,
+Mar,15,
+,
+`);
+
+    expect(result).toEqual(expectedMonthSales);
+  });
+
+  it("ignores a tab-only blank row in TSV spreadsheet paste", () => {
+    const result = tryParseSpreadsheet(
+      `Month\tSales
+Jan\t10
+\t
+Feb\t20
+Mar\t15`,
+    );
+
+    expect(result).toEqual(expectedMonthSales);
+  });
+
+  it("ignores an empty column between label and values", () => {
+    const result = tryParseSpreadsheet(`Month,,Sales
+Jan,,10
+Feb,,20
+Mar,,15`);
+
+    expect(result).toEqual(expectedMonthSales);
+  });
 });

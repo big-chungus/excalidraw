@@ -1,5 +1,29 @@
 import { type ParseSpreadsheetResult } from "./charts.types";
 
+const isEmptyCell = (cell: string | undefined) => !(cell ?? "").trim();
+
+/** Drop fully blank rows and columns from spreadsheet paste. */
+const normalizeSpreadsheetCells = (cells: string[][]): string[][] => {
+  const rows = cells.filter((row) => row.some((cell) => !isEmptyCell(cell)));
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const maxCols = Math.max(...rows.map((row) => row.length));
+  const usedColumns: number[] = [];
+  for (let col = 0; col < maxCols; col++) {
+    if (rows.some((row) => !isEmptyCell(row[col]))) {
+      usedColumns.push(col);
+    }
+  }
+
+  if (usedColumns.length === 0) {
+    return [];
+  }
+
+  return rows.map((row) => usedColumns.map((col) => (row[col] ?? "").trim()));
+};
+
 /**
  * @private exported for testing
  */
@@ -19,6 +43,11 @@ const isNumericColumn = (lines: string[][], columnIndex: number) =>
  * @private exported for testing
  */
 export const tryParseCells = (cells: string[][]): ParseSpreadsheetResult => {
+  cells = normalizeSpreadsheetCells(cells);
+  if (cells.length === 0) {
+    return { ok: false, reason: "No data rows" };
+  }
+
   const numCols = cells[0].length;
 
   if (numCols > 2) {
@@ -131,11 +160,13 @@ export const tryParseCells = (cells: string[][]): ParseSpreadsheetResult => {
 export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
   // Copy/paste from excel, spreadsheets, TSV, CSV, semicolon-separated.
   const parseDelimitedLines = (delimiter: "\t" | "," | ";") =>
-    text
-      .replace(/\r\n?/g, "\n")
-      .split("\n")
-      .filter((line) => line.trim().length > 0)
-      .map((line) => line.split(delimiter).map((cell) => cell.trim()));
+    normalizeSpreadsheetCells(
+      text
+        .replace(/\r\n?/g, "\n")
+        .split("\n")
+        .filter((line) => line.trim().length > 0)
+        .map((line) => line.split(delimiter).map((cell) => cell.trim())),
+    );
 
   // Score each delimiter: prefer consistent column counts with the most columns.
   // A delimiter that produces all single-column rows likely isn't the right one.
