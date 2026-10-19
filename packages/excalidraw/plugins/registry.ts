@@ -110,7 +110,13 @@ export class ShapePackRegistry {
 
   private revision = 0;
 
-  private destroyed = false;
+  /**
+   * Bumped by `destroy()`. A load that was in flight across it is discarded
+   * instead of registering into a registry nobody is watching — while the
+   * instance itself stays usable, because React StrictMode mounts, unmounts
+   * and remounts the same editor instance.
+   */
+  private generation = 0;
 
   private readonly emitter = new Emitter<[event: ShapePackEvent]>();
 
@@ -148,14 +154,7 @@ export class ShapePackRegistry {
    * it. A failed load leaves the registry untouched.
    */
   public async load(url: string): Promise<ShapePackLoadResult> {
-    if (this.destroyed) {
-      return this.fail(
-        new ShapePackError(
-          "PACK_SANDBOX_UNAVAILABLE",
-          "registry has been destroyed",
-        ),
-      );
-    }
+    const generation = this.generation;
 
     let source: string;
     try {
@@ -198,14 +197,15 @@ export class ShapePackRegistry {
 
     const { pack } = validated;
 
-    if (this.destroyed) {
+    if (this.generation !== generation) {
       loaded.sandbox.destroy();
-      return this.fail(
-        new ShapePackError(
+      return {
+        status: "error",
+        error: new ShapePackError(
           "PACK_SANDBOX_UNAVAILABLE",
-          "registry has been destroyed",
+          `the registry was reset while ${url} was loading`,
         ),
-      );
+      };
     }
 
     if (this.packs.has(pack.id)) {
@@ -254,12 +254,19 @@ export class ShapePackRegistry {
     this.emitter.trigger({ type: "unloaded", packId });
   }
 
+  /**
+   * Releases everything the registry holds — workers, caches, subscribers.
+   * The instance stays usable afterwards (as `Library.destroy()` does), so a
+   * StrictMode remount of the editor doesn't leave it dead.
+   */
   public destroy() {
-    this.destroyed = true;
     for (const packId of [...this.packs.keys()]) {
       this.unload(packId);
     }
+    this.renderCache.clear();
+    this.disabledShapes.clear();
     this.emitter.clear();
+    this.generation++;
   }
 
   /**

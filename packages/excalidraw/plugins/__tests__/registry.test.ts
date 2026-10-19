@@ -121,6 +121,45 @@ describe("ShapePackRegistry", () => {
       registry.destroy();
     });
 
+    it("stays usable after destroy, as a StrictMode remount requires", async () => {
+      const registry = createTestRegistry(VALID_PACK_SOURCE);
+
+      await loadTestPack(registry);
+      registry.destroy();
+
+      expect(registry.getPacks()).toHaveLength(0);
+
+      await loadTestPack(registry);
+
+      expect(registry.getShapes().map((shape) => shape.key)).toEqual([
+        "test-pack:box",
+      ]);
+
+      registry.destroy();
+    });
+
+    it("discards a load that was in flight when the registry was reset", async () => {
+      let release: (source: string) => void = () => {};
+      const registry = new ShapePackRegistry({
+        workerFactory: createFakeWorkerFactory(),
+        loadSource: () =>
+          new Promise<string>((resolve) => {
+            release = resolve;
+          }),
+      });
+
+      const loading = registry.load("https://packs.test/pack.js");
+      registry.destroy();
+      release(VALID_PACK_SOURCE);
+
+      const result = await loading;
+
+      expect(result.status === "error" && result.error.code).toBe(
+        "PACK_SANDBOX_UNAVAILABLE",
+      );
+      expect(registry.getPacks()).toHaveLength(0);
+    });
+
     it("does not register a pack whose manifest is invalid", async () => {
       const registry = createTestRegistry(
         `excalidraw.registerShapePack({
