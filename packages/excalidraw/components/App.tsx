@@ -361,6 +361,7 @@ import { restoreAppState, restoreElements } from "../data/restore";
 import { getCenter, getDistance } from "../gesture";
 import { History } from "../history";
 import { defaultLang, getLanguage, languages, setLanguage, t } from "../i18n";
+import { ShapePackRegistry } from "../plugins";
 
 import {
   getScrollToContentState,
@@ -466,6 +467,7 @@ import type {
 
 import type { ClipboardData, PastedMixedContent } from "../clipboard";
 import type { ExportedElements } from "../data";
+import type { ShapePackEvent } from "../plugins";
 import type { ContextMenuItems } from "./ContextMenu";
 
 import type {
@@ -639,6 +641,7 @@ class App extends React.Component<AppProps, AppState> {
   private hasRenderableElements: boolean = false;
   private resizeObserver: ResizeObserver | undefined;
   public library: AppClassProperties["library"];
+  public shapePacks: ShapePackRegistry;
   public libraryItemsFromStorage: LibraryItems | undefined;
   public id: string;
   private store: Store;
@@ -760,6 +763,7 @@ class App extends React.Component<AppProps, AppState> {
       applyDeltas: this.applyDeltas,
       mutateElement: this.mutateElement,
       updateLibrary: this.library.updateLibrary,
+      shapePacks: this.shapePacks,
       addFiles: this.addFiles,
       resetScene: this.resetScene,
       getSceneElementsIncludingDeleted: this.getSceneElementsIncludingDeleted,
@@ -850,6 +854,7 @@ class App extends React.Component<AppProps, AppState> {
 
     this.id = nanoid();
     this.library = new Library(this);
+    this.shapePacks = new ShapePackRegistry();
     this.actionManager = new ActionManager(
       this.syncActionResult,
       () => this.state,
@@ -2596,6 +2601,7 @@ class App extends React.Component<AppProps, AppState> {
                               pendingFlowchartNodes:
                                 this.flowchart.pendingNodes,
                               theme: this.state.theme,
+                              shapePacks: this.shapePacks.renderSource,
                             }}
                           />
                           {newElementCanvasElement && (
@@ -2618,6 +2624,7 @@ class App extends React.Component<AppProps, AppState> {
                                   this.elementsPendingErasure,
                                 pendingFlowchartNodes: null,
                                 theme: this.state.theme,
+                                shapePacks: this.shapePacks.renderSource,
                               }}
                             />
                           )}
@@ -3729,6 +3736,7 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     this.scene.onUpdate(this.triggerRender);
+    this.shapePacks.onEvent(this.onShapePackEvent);
     this.addEventListeners();
 
     if (this.props.autoFocus && this.excalidrawContainerRef.current) {
@@ -3807,6 +3815,7 @@ class App extends React.Component<AppProps, AppState> {
     this.viewport.destroy();
     this.removeEventListeners();
     this.library.destroy();
+    this.shapePacks.destroy();
     this.laserTrails.stop();
     this.drawShape.stop();
     this.eraserTrail.stop();
@@ -5108,6 +5117,22 @@ class App extends React.Component<AppProps, AppState> {
 
   setToast = (toast: AppState["toast"]) => {
     this.setState({ toast });
+  };
+
+  private onShapePackEvent = (event: ShapePackEvent) => {
+    if (event.type === "error") {
+      // a failing pack must never take the editor down with it — the affected
+      // elements keep rendering as their base shape
+      console.warn(`[excalidraw] shape pack error`, event.error);
+      this.setToast({
+        message: t("toast.shapePackError", {
+          message: event.error.message,
+        }),
+        closable: true,
+      });
+      return;
+    }
+    this.triggerRender();
   };
 
   restoreFileFromShare = async () => {

@@ -85,6 +85,7 @@ const sidebars = {
                 "@excalidraw/excalidraw/api/utils/restore",
               ],
             },
+            "@excalidraw/excalidraw/api/shape-packs",
             "@excalidraw/excalidraw/api/constants",
             "@excalidraw/excalidraw/api/excalidraw-element-skeleton",
           ],

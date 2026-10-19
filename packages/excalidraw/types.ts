@@ -57,6 +57,7 @@ import type { Spreadsheet } from "./charts";
 import type { ClipboardData } from "./clipboard";
 import type App from "./components/App";
 import type Library from "./data/library";
+import type { ShapePackRegistry } from "./plugins";
 import type { ContextMenuItems } from "./components/ContextMenu";
 import type { SnapLine } from "./snapping";
 import type { ImportedDataState } from "./data/types";
@@ -1242,6 +1243,11 @@ export interface ExcalidrawImperativeAPI {
   applyDeltas: InstanceType<typeof App>["applyDeltas"];
   mutateElement: InstanceType<typeof App>["mutateElement"];
   updateLibrary: InstanceType<typeof Library>["updateLibrary"];
+  /**
+   * Runtime shape packs: load and unload packs, and inspect the shapes they
+   * contribute. See `plugins/README.md` for the pack contract.
+   */
+  shapePacks: ShapePackRegistry;
   resetScene: InstanceType<typeof App>["resetScene"];
   getSceneElementsIncludingDeleted: InstanceType<
     typeof App

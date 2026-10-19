@@ -459,6 +459,42 @@ export { CaptureUpdateAction } from "@excalidraw/element";
 
 export { parseLibraryTokensFromUrl, useHandleLibrary } from "./data/library";
 
+export {
+  SHAPE_PACK_API_VERSION,
+  SHAPE_PACK_CUSTOM_DATA_KEY,
+  SHAPE_PACK_ICON_SIZE,
+  SHAPE_PACK_LIMITS,
+  ShapePackError,
+  ShapePackRegistry,
+  createShapePackRef,
+  getShapePackRef,
+  isShapePackElement,
+  isShapePackSandboxSupported,
+  newShapePackElement,
+  paintDrawOps,
+} from "./plugins";
+export type {
+  ShapeColor,
+  ShapeDefaultProps,
+  ShapeDefinition,
+  ShapeDescriptor,
+  ShapeDrawOp,
+  ShapeFallback,
+  ShapePack,
+  ShapePackApi,
+  ShapePackDescriptor,
+  ShapePackElementRef,
+  ShapePackErrorCode,
+  ShapePackEvent,
+  ShapePackLoadResult,
+  ShapePackRegistryOptions,
+  ShapePackWorker,
+  ShapePackWorkerFactory,
+  ShapeProps,
+  ShapePropValue,
+  ShapeRenderContext,
+} from "./plugins";
+
 export { Sidebar } from "./components/Sidebar/Sidebar";
 export { Button } from "./components/Button";
 export { Footer };
