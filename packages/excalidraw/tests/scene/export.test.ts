@@ -28,6 +28,16 @@ import {
 } from "../fixtures/elementFixture";
 import { API } from "../helpers/api";
 
+/** every coordinate pair in an SVG path, control points included */
+const parsePathPoints = (d: string): [number, number][] => {
+  const numbers = (d.match(/-?\d+(\.\d+)?(e-?\d+)?/g) ?? []).map(Number);
+  const points: [number, number][] = [];
+  for (let i = 0; i + 1 < numbers.length; i += 2) {
+    points.push([numbers[i], numbers[i + 1]]);
+  }
+  return points;
+};
+
 describe("exportToSvg", () => {
   const ELEMENT_HEIGHT = 100;
   const ELEMENT_WIDTH = 100;
@@ -237,6 +247,44 @@ describe("exportToSvg", () => {
     // the masked arrow group still renders its line (not clipped away)
     expect(svgElement.querySelector("g[mask] path")).not.toBeNull();
   });
+
+  it("renders a triangle", async () => {
+    const triangle = API.createElement({
+      type: "triangle",
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+      roughness: 0,
+    });
+
+    const svgElement = await exportUtils.exportToSvg(
+      [triangle] as NonDeletedExcalidrawElement[],
+      { ...DEFAULT_OPTIONS, exportPadding: 0 },
+      null,
+    );
+
+    const path = svgElement.querySelector("path");
+    expect(path).not.toBeNull();
+
+    const points = parsePathPoints(path!.getAttribute("d")!);
+    expect(points.length).toBeGreaterThan(0);
+
+    const xs = points.map(([x]) => x);
+    const ys = points.map(([, y]) => y);
+    expect(Math.min(...xs)).toBeCloseTo(0, 0);
+    expect(Math.max(...xs)).toBeCloseTo(100, 0);
+    expect(Math.min(...ys)).toBeCloseTo(0, 0);
+    expect(Math.max(...ys)).toBeCloseTo(100, 0);
+
+    // what makes it a triangle rather than a rectangle: the only points along
+    // the top edge are the apex, at the horizontal center
+    for (const [x, y] of points) {
+      if (y < 1) {
+        expect(x).toBeCloseTo(50, 0);
+      }
+    }
+  });
 });
 
 describe("exportToCanvas", () => {
@@ -302,6 +350,47 @@ describe("exportToCanvas", () => {
           event.props.height === holeHeight,
       ),
     ).toEqual([]);
+  });
+
+  it("renders a triangle", async () => {
+    const triangle = API.createElement({
+      type: "triangle",
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+      roughness: 0,
+    });
+
+    const canvas = await exportToCanvas({
+      elements: [triangle],
+      files: null,
+      exportPadding: 0,
+    });
+
+    const context = canvas.getContext("2d") as any;
+    const points: [number, number][] = context
+      .__getEvents()
+      .filter(
+        (event: any) => event.type === "moveTo" || event.type === "lineTo",
+      )
+      .map((event: any) => [event.props.x, event.props.y]);
+
+    // the stroke is traced as a closed 3-vertex path
+    expect(points.length).toBeGreaterThanOrEqual(3);
+
+    const xs = points.map(([x]) => x);
+    const ys = points.map(([, y]) => y);
+    expect(Math.min(...xs)).toBeCloseTo(0, 0);
+    expect(Math.max(...xs)).toBeCloseTo(100, 0);
+    expect(Math.min(...ys)).toBeCloseTo(0, 0);
+    expect(Math.max(...ys)).toBeCloseTo(100, 0);
+
+    for (const [x, y] of points) {
+      if (y < 1) {
+        expect(x).toBeCloseTo(50, 0);
+      }
+    }
   });
 });
 

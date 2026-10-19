@@ -6,7 +6,7 @@ import { DEFAULT_SIDEBAR, FONT_FAMILY, ROUNDNESS } from "@excalidraw/common";
 import { newElementWith } from "@excalidraw/element";
 import * as sizeHelpers from "@excalidraw/element";
 
-import type { LocalPoint } from "@excalidraw/math";
+import type { LocalPoint, Radians } from "@excalidraw/math";
 
 import type {
   ExcalidrawArrowElement,
@@ -668,6 +668,76 @@ describe("restoreElements", () => {
       seed: expect.any(Number),
       versionNonce: expect.any(Number),
     });
+  });
+
+  it("should restore triangle elements", () => {
+    const triangle = API.createElement({
+      type: "triangle",
+      id: "triangle-1",
+      x: 10,
+      y: 20,
+      width: 100,
+      height: 200,
+      angle: 1 as Radians,
+      strokeColor: "red",
+      backgroundColor: "blue",
+      fillStyle: "cross-hatch",
+      strokeWidth: 2,
+      strokeStyle: "dashed",
+      roughness: 2,
+      opacity: 10,
+      groupIds: ["1", "2"],
+    });
+
+    const [restored] = restore.restoreElements([triangle], null);
+
+    expect(restored).toEqual(
+      expect.objectContaining({
+        type: "triangle",
+        id: "triangle-1",
+        x: 10,
+        y: 20,
+        width: 100,
+        height: 200,
+        angle: 1,
+        strokeColor: "red",
+        backgroundColor: "blue",
+        fillStyle: "cross-hatch",
+        strokeWidth: 2,
+        strokeStyle: "dashed",
+        roughness: 2,
+        opacity: 10,
+        groupIds: ["1", "2"],
+      }),
+    );
+  });
+
+  it("should round-trip triangle elements through serialized scene JSON", () => {
+    const triangle = API.createElement({
+      type: "triangle",
+      x: 5,
+      y: 15,
+      width: 60,
+      height: 40,
+      backgroundColor: "#ffd700",
+    });
+
+    const serialized = JSON.parse(
+      JSON.stringify({ elements: [triangle] }),
+    ) as ImportedDataState;
+
+    const [restored] = restore.restoreElements(serialized.elements, null);
+
+    expect(restored.type).toBe("triangle");
+    expect(restored).toEqual(
+      expect.objectContaining({
+        x: 5,
+        y: 15,
+        width: 60,
+        height: 40,
+        backgroundColor: "#ffd700",
+      }),
+    );
   });
 
   it("bump versions of local duplicate elements when supplied", () => {
