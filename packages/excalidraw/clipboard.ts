@@ -555,6 +555,17 @@ export const parseClipboard = async (
 };
 
 export const copyBlobToClipboardAsPng = async (blob: Blob | Promise<Blob>) => {
+  const pngBlob = (async () => {
+    const resolved = isPromiseLike(blob) ? await blob : blob;
+    // ClipboardItem keys must match the blob MIME type. canvas.toBlob()
+    // without an explicit type can yield an empty `blob.type`, which some
+    // browsers then re-encode (flattening PNG alpha onto white).
+    if (resolved.type === MIME_TYPES.png) {
+      return resolved;
+    }
+    return new Blob([resolved], { type: MIME_TYPES.png });
+  })();
+
   try {
     // in Safari so far we need to construct the ClipboardItem synchronously
     // (i.e. in the same tick) otherwise browser will complain for lack of
@@ -566,21 +577,15 @@ export const copyBlobToClipboardAsPng = async (blob: Blob | Promise<Blob>) => {
     // So we need to await this and fallback to awaiting the blob if applicable.
     await navigator.clipboard.write([
       new ClipboardItem({
-        [MIME_TYPES.png]: blob,
+        [MIME_TYPES.png]: pngBlob,
       }),
     ]);
   } catch (error: any) {
-    // if we're using a Promise ClipboardItem, let's try constructing
-    // with resolution value instead
-    if (isPromiseLike(blob)) {
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          [MIME_TYPES.png]: await blob,
-        }),
-      ]);
-    } else {
-      throw error;
-    }
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        [MIME_TYPES.png]: await pngBlob,
+      }),
+    ]);
   }
 };
 
