@@ -1,7 +1,12 @@
 import clsx from "clsx";
 
+import { isBoundToContainer } from "@excalidraw/element";
+
+import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
+
 import { actionShortcuts } from "../../actions";
 import { useTunnels } from "../../context/tunnels";
+import { t } from "../../i18n";
 import { ExitZenModeButton, UndoRedoActions, ZoomActions } from "../Actions";
 import { useApp } from "../App";
 import { HelpButton } from "../HelpButton";
@@ -11,8 +16,25 @@ import Stack from "../Stack";
 import type { ActionManager } from "../../actions/manager";
 import type { UIAppState } from "../../types";
 
+// bound text is counted together with its container
+const ElementCount = ({
+  elements,
+}: {
+  elements: readonly NonDeletedExcalidrawElement[];
+}) => {
+  const count = elements.filter((el) => !isBoundToContainer(el)).length;
+  return (
+    <div className="layer-ui__element-count" data-testid="element-count">
+      {count === 1
+        ? t("footer.elementCount_one")
+        : t("footer.elementCount_other", { count })}
+    </div>
+  );
+};
+
 const Footer = ({
   appState,
+  elements,
   actionManager,
   showExitZenModeBtn,
   renderWelcomeScreen,
@@ -20,6 +42,7 @@ const Footer = ({
   zoomUIEnabled,
 }: {
   appState: UIAppState;
+  elements: readonly NonDeletedExcalidrawElement[];
   actionManager: ActionManager;
   showExitZenModeBtn: boolean;
   renderWelcomeScreen: boolean;
@@ -59,6 +82,12 @@ const Footer = ({
                   })}
                 />
               )}
+
+              {defaultUIEnabled &&
+                !appState.viewModeEnabled &&
+                !appState.zenModeEnabled && (
+                  <ElementCount elements={elements} />
+                )}
             </Section>
           </Stack.Col>
         </div>
