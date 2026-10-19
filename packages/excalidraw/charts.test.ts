@@ -274,6 +274,49 @@ describe("charts", () => {
       ]);
     });
 
+    it("ignores blank rows when parsing cells", () => {
+      const spreadsheet = [
+        ["time", "value"],
+        ["01:00", "61"],
+        ["", ""],
+        ["02:00", "-60"],
+        ["03:00", "85"],
+      ];
+
+      const result = tryParseCells(spreadsheet);
+
+      expect(result.ok).toBe(true);
+
+      const { title, labels, series } = (
+        result as { ok: true; data: Spreadsheet }
+      ).data;
+
+      expect(title).toEqual("value");
+      expect(labels).toEqual(["01:00", "02:00", "03:00"]);
+      expect(series).toEqual([{ title: "value", values: [61, -60, 85] }]);
+    });
+
+    it("ignores trailing empty columns when parsing cells", () => {
+      const spreadsheet = [
+        ["time", "value", ""],
+        ["01:00", "61", ""],
+        ["02:00", "-60", ""],
+        ["03:00", "85", ""],
+      ];
+
+      const result = tryParseCells(spreadsheet);
+
+      expect(result.ok).toBe(true);
+
+      const { title, labels, series } = (
+        result as { ok: true; data: Spreadsheet }
+      ).data;
+
+      expect(title).toEqual("value");
+      expect(labels).toEqual(["01:00", "02:00", "03:00"]);
+      expect(series).toEqual([{ title: "value", values: [61, -60, 85] }]);
+    });
+
     it("always interprets 2-column data as label in first column and numeric value in second", () => {
       const spreadsheet = [
         ["10", "2"],
