@@ -159,14 +159,18 @@ export const tryParseCells = (cells: string[][]): ParseSpreadsheetResult => {
 
 export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
   // Copy/paste from excel, spreadsheets, TSV, CSV, semicolon-separated.
+  // Score the raw split. Padding short rows (via normalizeSpreadsheetCells)
+  // makes every delimiter look consistent, so a comma inside one cell can
+  // beat a real tab or semicolon grid. Blank rows are dropped here only so
+  // a delimiter-only line does not change the column count; tryParseCells
+  // still strips blank columns after the delimiter is chosen.
   const parseDelimitedLines = (delimiter: "\t" | "," | ";") =>
-    normalizeSpreadsheetCells(
-      text
-        .replace(/\r\n?/g, "\n")
-        .split("\n")
-        .filter((line) => line.trim().length > 0)
-        .map((line) => line.split(delimiter).map((cell) => cell.trim())),
-    );
+    text
+      .replace(/\r\n?/g, "\n")
+      .split("\n")
+      .filter((line) => line.trim().length > 0)
+      .map((line) => line.split(delimiter).map((cell) => cell.trim()))
+      .filter((row) => row.some((cell) => !isEmptyCell(cell)));
 
   // Score each delimiter: prefer consistent column counts with the most columns.
   // A delimiter that produces all single-column rows likely isn't the right one.

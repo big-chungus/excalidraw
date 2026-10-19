@@ -223,4 +223,34 @@ Mar,,15`);
 
     expect(result).toEqual(expectedMonthSales);
   });
+
+  it("parses a single column when only some values use thousands separators", () => {
+    const result = tryParseSpreadsheet(`1000
+2,000
+3000`);
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        title: null,
+        labels: null,
+        series: [{ title: null, values: [1000, 2000, 3000] }],
+      },
+    });
+  });
+
+  it("keeps semicolon as the delimiter when commas appear in only some rows", () => {
+    const result = tryParseSpreadsheet(`City;Population
+New York;8000000
+Paris, France;2000000`);
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        title: "Population",
+        labels: ["New York", "Paris, France"],
+        series: [{ title: "Population", values: [8000000, 2000000] }],
+      },
+    });
+  });
 });
