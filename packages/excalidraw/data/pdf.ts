@@ -58,14 +58,20 @@ export const exportFramesToPdf = async (
   {
     exportBackground,
     viewBackgroundColor,
+    exportingFrame = null,
   }: {
     exportBackground: boolean;
     viewBackgroundColor: string;
+    exportingFrame?: NonDeleted<ExcalidrawFrameLikeElement> | null;
   },
 ): Promise<Blob> => {
-  const frames = sortFramesInReadingOrder(
-    getFrameLikeElements(elements) as NonDeleted<ExcalidrawFrameLikeElement>[],
-  );
+  const frames = exportingFrame
+    ? [exportingFrame]
+    : sortFramesInReadingOrder(
+        getFrameLikeElements(
+          elements,
+        ) as NonDeleted<ExcalidrawFrameLikeElement>[],
+      );
 
   if (!frames.length) {
     throw new Error(t("alerts.cannotExportPdfWithoutFrames"));

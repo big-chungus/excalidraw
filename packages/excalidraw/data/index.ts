@@ -126,6 +126,7 @@ export const exportCanvas = async (
         exportFramesToPdf(elements, appState, files, {
           exportBackground,
           viewBackgroundColor,
+          exportingFrame,
         }),
       ),
       {
