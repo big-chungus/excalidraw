@@ -212,7 +212,7 @@ describe("contextMenu element", () => {
     const contextMenu = UI.queryContextMenu();
     const contextMenuOptions =
       contextMenu?.querySelectorAll(".context-menu li");
-    const expectedShortcutNames: ShortcutName[] = [
+    const expectedContextMenuItems: ActionName[] = [
       "cut",
       "copy",
       "paste",
@@ -221,6 +221,7 @@ describe("contextMenu element", () => {
       "pasteStyles",
       "deleteSelectedElements",
       "group",
+      "tidyDiagram",
       "addToLibrary",
       "flipHorizontal",
       "flipVertical",
@@ -233,10 +234,10 @@ describe("contextMenu element", () => {
     ];
 
     expect(contextMenu).not.toBeNull();
-    expect(contextMenuOptions?.length).toBe(expectedShortcutNames.length);
-    expectedShortcutNames.forEach((shortcutName) => {
+    expect(contextMenuOptions?.length).toBe(expectedContextMenuItems.length);
+    expectedContextMenuItems.forEach((item) => {
       expect(
-        contextMenu?.querySelector(`li[data-testid="${shortcutName}"]`),
+        contextMenu?.querySelector(`li[data-testid="${item}"]`),
       ).not.toBeNull();
     });
   });
@@ -278,6 +279,7 @@ describe("contextMenu element", () => {
       "pasteStyles",
       "deleteSelectedElements",
       "copyElementLink",
+      "tidyDiagram",
       "ungroup",
       "addToLibrary",
       "flipHorizontal",

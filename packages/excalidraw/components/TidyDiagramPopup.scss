@@ -1,0 +1,26 @@
+@use "../css/variables.module" as *;
+
+.excalidraw {
+  .TidyDiagramPopup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    background: var(--island-bg-color);
+    box-shadow: var(--shadow-island);
+    padding: 0.5rem;
+    transform: translateX(-50%);
+    white-space: nowrap;
+
+    &:focus {
+      outline: none;
+    }
+
+    &__label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-on-surface);
+      padding-inline: 0.25rem;
+    }
+  }
+}

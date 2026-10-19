@@ -337,6 +337,12 @@ import {
   actionWrapSelectionInFrame,
 } from "../actions/actionFrame";
 import { createRedoAction, createUndoAction } from "../actions/actionHistory";
+import {
+  actionCancelTidyDiagram,
+  actionConfirmTidyDiagram,
+  actionTidyDiagram,
+  tidyDiagramPreviewAtom,
+} from "../actions/actionTidyDiagram";
 import { actionTextAutoResize } from "../actions/actionTextAutoResize";
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 import { ActionManager } from "../actions/manager";
@@ -456,6 +462,8 @@ import { AppStateObserver, type OnStateChange } from "./AppStateObserver";
 import { findShapeByKey, TOGGLE_TOOLS } from "./Tools";
 
 import UnlockPopup from "./UnlockPopup";
+
+import TidyDiagramPopup from "./TidyDiagramPopup";
 
 import type { ExcalidrawLibraryIds } from "../data/types";
 
@@ -2672,6 +2680,9 @@ class App extends React.Component<AppProps, AppState> {
                             showShapeSwitchPanel && (
                               <ConvertElementTypePopup app={this} />
                             )}
+                          {this.isDefaultUIEnabled() && (
+                            <TidyDiagramPopup app={this} />
+                          )}
                         </ExcalidrawActionManagerContext.Provider>
                         {this.renderEmbeddables()}
                       </ExcalidrawElementsContext.Provider>
@@ -5356,6 +5367,25 @@ class App extends React.Component<AppProps, AppState> {
         ) {
           this.finishImageCropping();
           return;
+        }
+
+        if (editorJotaiStore.get(tidyDiagramPreviewAtom)) {
+          if (event.key === KEYS.ESCAPE) {
+            event.preventDefault();
+            this.actionManager.executeAction(
+              actionCancelTidyDiagram,
+              "keyboard",
+            );
+            return;
+          }
+          if (event.key === KEYS.ENTER) {
+            event.preventDefault();
+            this.actionManager.executeAction(
+              actionConfirmTidyDiagram,
+              "keyboard",
+            );
+            return;
+          }
         }
 
         const selectedElements = getSelectedElements(
@@ -8371,6 +8401,12 @@ class App extends React.Component<AppProps, AppState> {
 
     if (editorJotaiStore.get(convertElementTypePopupAtom)) {
       this.updateEditorAtom(convertElementTypePopupAtom, null);
+    }
+
+    // interacting with the canvas again accepts a pending tidy layout, so the
+    // preview can never be left hanging around uncommitted
+    if (editorJotaiStore.get(tidyDiagramPreviewAtom)) {
+      this.actionManager.executeAction(actionConfirmTidyDiagram, "ui");
     }
 
     // since contextMenu options are potentially evaluated on each render,
@@ -13633,6 +13669,7 @@ class App extends React.Component<AppProps, AppState> {
       actionPasteStyles,
       CONTEXT_MENU_SEPARATOR,
       actionGroup,
+      actionTidyDiagram,
       actionTextAutoResize,
       actionUnbindText,
       actionBindText,
