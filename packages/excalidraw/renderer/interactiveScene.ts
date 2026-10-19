@@ -24,8 +24,10 @@ import {
 import {
   deconstructDiamondElement,
   deconstructRectanguloidElement,
+  deconstructTriangleElement,
   elementCenterPoint,
   getDiamondBaseCorners,
+  getTriangleBaseCorners,
   FOCUS_POINT_SIZE,
   getOmitSidesForEditorInterface,
   getTransformHandles,
@@ -344,10 +346,12 @@ const renderBindingHighlightForBindableElement_simple = (
           context.stroke();
           break;
         case "diamond":
+        case "triangle":
           {
-            const [segments, curves] = deconstructDiamondElement(
-              suggestedBinding.element,
-            );
+            const [segments, curves] =
+              suggestedBinding.element.type === "triangle"
+                ? deconstructTriangleElement(suggestedBinding.element)
+                : deconstructDiamondElement(suggestedBinding.element);
 
             // Draw each line segment individually
             segments.forEach((segment) => {
@@ -465,23 +469,28 @@ const renderBindingHighlightForBindableElement_simple = (
       const center = elementCenterPoint(suggestedBinding.element, elementsMap);
 
       let midpoints: GlobalPoint[];
-      if (suggestedBinding.element.type === "diamond") {
+      if (
+        suggestedBinding.element.type === "diamond" ||
+        suggestedBinding.element.type === "triangle"
+      ) {
         const center = elementCenterPoint(
           suggestedBinding.element,
           elementsMap,
         );
-        midpoints = getDiamondBaseCorners(suggestedBinding.element).map(
-          (curve) => {
-            const point = bezierEquation(curve, 0.5);
-            const rotatedPoint = pointRotateRads(
-              point,
-              center,
-              suggestedBinding.element.angle,
-            );
+        const outlineCorners =
+          suggestedBinding.element.type === "triangle"
+            ? getTriangleBaseCorners(suggestedBinding.element)
+            : getDiamondBaseCorners(suggestedBinding.element);
+        midpoints = outlineCorners.map((curve) => {
+          const point = bezierEquation(curve, 0.5);
+          const rotatedPoint = pointRotateRads(
+            point,
+            center,
+            suggestedBinding.element.angle,
+          );
 
-            return pointFrom<GlobalPoint>(rotatedPoint[0], rotatedPoint[1]);
-          },
-        );
+          return pointFrom<GlobalPoint>(rotatedPoint[0], rotatedPoint[1]);
+        });
       } else {
         const basePoints = [
           {
@@ -687,11 +696,12 @@ const renderBindingHighlightForBindableElement_complex = (
           context.stroke();
           break;
         case "diamond":
+        case "triangle":
           {
-            const [segments, curves] = deconstructDiamondElement(
-              element,
-              offset,
-            );
+            const [segments, curves] =
+              element.type === "triangle"
+                ? deconstructTriangleElement(element, offset)
+                : deconstructDiamondElement(element, offset);
 
             // Draw each line segment individually
             segments.forEach((segment) => {
@@ -846,8 +856,11 @@ const renderBindingHighlightForBindableElement_complex = (
       const cutoutRadius = midpointRadius + cutoutPadding;
 
       let midpoints;
-      if (element.type === "diamond") {
-        const [, curves] = deconstructDiamondElement(element);
+      if (element.type === "diamond" || element.type === "triangle") {
+        const [, curves] =
+          element.type === "triangle"
+            ? deconstructTriangleElement(element)
+            : deconstructDiamondElement(element);
         const center = elementCenterPoint(element, allElementsMap);
 
         midpoints = curves.map((curve) => {

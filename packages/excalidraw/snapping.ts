@@ -263,6 +263,20 @@ export const getElementsCorners = (
       result = omitCenter
         ? [leftMid, topMid, rightMid, bottomMid]
         : [leftMid, topMid, rightMid, bottomMid, center];
+    } else if (element.type === "triangle" && !boundingBoxCorners) {
+      // the triangle's own vertices: apex plus the two base corners
+      const [apex, bottomRight, bottomLeft] = [
+        pointFrom<GlobalPoint>(x1 + halfWidth, y1),
+        pointFrom<GlobalPoint>(x2, y2),
+        pointFrom<GlobalPoint>(x1, y2),
+      ].map((point) =>
+        pointRotateRads<GlobalPoint>(point, pointFrom(cx, cy), element.angle),
+      );
+      const center = pointFrom<GlobalPoint>(cx, cy);
+
+      result = omitCenter
+        ? [apex, bottomRight, bottomLeft]
+        : [apex, bottomRight, bottomLeft, center];
     } else {
       const topLeft = pointRotateRads<GlobalPoint>(
         pointFrom(x1, y1),
@@ -1406,6 +1420,7 @@ export const isActiveToolNonLinearSnappable = (
     activeToolType === TOOL_TYPE.rectangle ||
     activeToolType === TOOL_TYPE.ellipse ||
     activeToolType === TOOL_TYPE.diamond ||
+    activeToolType === TOOL_TYPE.triangle ||
     activeToolType === TOOL_TYPE.frame ||
     activeToolType === TOOL_TYPE.magicframe ||
     activeToolType === TOOL_TYPE.image ||
