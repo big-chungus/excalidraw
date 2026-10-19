@@ -335,7 +335,7 @@ export const DEFAULT_UI_OPTIONS: AppProps["UIOptions"] = {
 export const MAX_DECIMALS_FOR_SVG_EXPORT = 2;
 
 export const EXPORT_SCALES = [1, 2, 3];
-export const DEFAULT_EXPORT_PADDING = 10; // px
+export const DEFAULT_EXPORT_PADDING = 16; // px
 
 export const DEFAULT_IMAGE_OPTIONS: AppProps["imageOptions"] = {
   maxWidthOrHeight: 1440,

@@ -8,7 +8,7 @@ import * as utils from "../src";
 const exportToSvgSpy = vi.spyOn(mockedSceneExportUtils, "exportToSvg");
 
 describe("exportToCanvas", async () => {
-  const EXPORT_PADDING = 10;
+  const EXPORT_PADDING = 16;
 
   it("with default arguments", async () => {
     const canvas = await utils.exportToCanvas({
