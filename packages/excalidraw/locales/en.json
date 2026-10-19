@@ -268,6 +268,7 @@
     "couldNotLoadInvalidFile": "Couldn't load invalid file",
     "importBackendFailed": "Importing from backend failed.",
     "cannotExportEmptyCanvas": "Cannot export empty canvas.",
+    "cannotExportPdfWithoutFrames": "Add at least one frame to export as PDF.",
     "couldNotCopyToClipboard": "Couldn't copy to clipboard.",
     "decryptFailed": "Couldn't decrypt data.",
     "uploadedSecurly": "The upload has been secured with end-to-end encryption, which means that Excalidraw server and third parties can't read the content.",
@@ -528,11 +529,13 @@
     "title": {
       "exportToPng": "Export to PNG",
       "exportToSvg": "Export to SVG",
+      "exportFramesToPdf": "Export frames to PDF, one page per frame",
       "copyPngToClipboard": "Copy PNG to clipboard"
     },
     "button": {
       "exportToPng": "PNG",
       "exportToSvg": "SVG",
+      "exportFramesToPdf": "PDF",
       "copyPngToClipboard": "Copy to clipboard"
     }
   },

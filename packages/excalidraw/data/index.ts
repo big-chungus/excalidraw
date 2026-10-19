@@ -120,6 +120,23 @@ export const exportCanvas = async (
   if (elements.length === 0) {
     throw new Error(t("alerts.cannotExportEmptyCanvas"));
   }
+  if (type === "pdf") {
+    return fileSave(
+      import("./pdf").then(({ exportFramesToPdf }) =>
+        exportFramesToPdf(elements, appState, files, {
+          exportBackground,
+          viewBackgroundColor,
+        }),
+      ),
+      {
+        description: "Export to PDF",
+        name,
+        extension: "pdf",
+        mimeTypes: [MIME_TYPES.pdf],
+        fileHandle,
+      },
+    );
+  }
   if (type === "svg" || type === "clipboard-svg") {
     const svgPromise = exportToSvg(
       elements,

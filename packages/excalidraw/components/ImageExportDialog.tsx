@@ -9,6 +9,8 @@ import {
   cloneJSON,
 } from "@excalidraw/common";
 
+import { getFrameLikeElements } from "@excalidraw/element";
+
 import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
 
 import {
@@ -110,6 +112,7 @@ const ImageExportModal = ({
     appStateSnapshot,
     exportSelectionOnly,
   );
+  const hasFrames = getFrameLikeElements(exportedElements).length > 0;
 
   useEffect(() => {
     const previewNode = previewRef.current;
@@ -325,6 +328,20 @@ const ImageExportModal = ({
           >
             {t("imageExportDialog.button.exportToSvg")}
           </FilledButton>
+          {hasFrames && (
+            <FilledButton
+              className="ImageExportModal__settings__buttons__button"
+              label={t("imageExportDialog.title.exportFramesToPdf")}
+              onClick={() =>
+                onExportImage(EXPORT_IMAGE_TYPES.pdf, exportedElements, {
+                  exportingFrame,
+                })
+              }
+              icon={downloadIcon}
+            >
+              {t("imageExportDialog.button.exportFramesToPdf")}
+            </FilledButton>
+          )}
           {(probablySupportsClipboardBlob || isFirefox) && (
             <FilledButton
               className="ImageExportModal__settings__buttons__button"
