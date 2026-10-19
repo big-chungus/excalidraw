@@ -557,6 +557,10 @@
     "versionNotAvailable": "Version not available",
     "width": "Width"
   },
+  "footer": {
+    "elementCount_one": "1 element",
+    "elementCount_other": "{{count}} elements"
+  },
   "toast": {
     "addedToLibrary": "Added to library",
     "copyStyles": "Copied styles.",
