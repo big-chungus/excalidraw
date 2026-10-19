@@ -2713,7 +2713,11 @@ class App extends React.Component<AppProps, AppState> {
   public onExportImage = async (
     type: keyof typeof EXPORT_IMAGE_TYPES,
     elements: ExportedElements,
-    opts: { exportingFrame: NonDeleted<ExcalidrawFrameLikeElement> | null },
+    opts: {
+      exportingFrame: NonDeleted<ExcalidrawFrameLikeElement> | null;
+      /** Dialog-local Background toggle. Falls back to appState when omitted. */
+      exportBackground?: boolean;
+    },
   ) => {
     trackEvent("export", type, "ui");
     const fileHandle = await exportCanvas(
@@ -2722,7 +2726,7 @@ class App extends React.Component<AppProps, AppState> {
       this.state,
       this.files,
       {
-        exportBackground: this.state.exportBackground,
+        exportBackground: opts.exportBackground ?? this.state.exportBackground,
         name: this.getName(),
         viewBackgroundColor: this.state.viewBackgroundColor,
         exportingFrame: opts.exportingFrame,

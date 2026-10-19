@@ -248,7 +248,7 @@ export const canvasToBlob = async (
           );
         }
         resolve(blob);
-      });
+      }, MIME_TYPES.png);
     } catch (error: any) {
       reject(error);
     }

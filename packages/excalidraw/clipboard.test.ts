@@ -1,4 +1,8 @@
+import { MIME_TYPES } from "@excalidraw/common";
+import { vi } from "vitest";
+
 import {
+  copyBlobToClipboardAsPng,
   createPasteEvent,
   parseClipboard,
   parseDataTransferEvent,
@@ -154,5 +158,33 @@ describe("parseClipboard()", () => {
         value: "my friend!",
       },
     ]);
+  });
+});
+
+describe("copyBlobToClipboardAsPng()", () => {
+  it("writes a PNG-typed blob so clipboard consumers keep alpha", async () => {
+    const written: Array<Record<string, Blob | Promise<Blob>>> = [];
+
+    class ClipboardItemMock {
+      constructor(items: Record<string, Blob | Promise<Blob>>) {
+        written.push(items);
+      }
+    }
+
+    vi.stubGlobal("ClipboardItem", ClipboardItemMock);
+    Object.assign(navigator, {
+      clipboard: {
+        write: vi.fn().mockResolvedValue(undefined),
+      },
+    });
+
+    const untypedBlob = new Blob([new Uint8Array([137, 80, 78, 71])], {
+      type: "",
+    });
+    await copyBlobToClipboardAsPng(untypedBlob);
+
+    expect(written).toHaveLength(1);
+    const pngEntry = await written[0][MIME_TYPES.png];
+    expect(pngEntry.type).toBe(MIME_TYPES.png);
   });
 });
