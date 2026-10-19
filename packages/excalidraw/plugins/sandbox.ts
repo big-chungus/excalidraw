@@ -68,6 +68,12 @@ export class ShapePackSandbox {
     | ((result: { manifest: unknown } | { error: ShapePackError }) => void)
     | null = null;
 
+  /**
+   * Called once when the worker dies or hangs after the pack registered. The
+   * sandbox has already been destroyed by then.
+   */
+  public onFatal: ((error: ShapePackError) => void) | null = null;
+
   private constructor(options: ShapePackSandboxOptions) {
     this.url = options.url;
     this.renderTimeout =
@@ -159,7 +165,17 @@ export class ShapePackSandbox {
       );
       this.onReady?.({ error });
       this.rejectAllPending(error);
+      this.fail(error);
     };
+  }
+
+  private fail(error: ShapePackError) {
+    if (this.destroyed) {
+      return;
+    }
+    const onFatal = this.onFatal;
+    this.destroy();
+    onFatal?.(error);
   }
 
   private handleMessage(message: any) {
@@ -171,16 +187,20 @@ export class ShapePackSandbox {
       case "ready":
         this.onReady?.({ manifest: message.manifest });
         break;
-      case "error":
-        this.onReady?.({
-          error: new ShapePackError(
-            message.code === "PACK_INVALID_MANIFEST"
-              ? "PACK_INVALID_MANIFEST"
-              : "PACK_RUNTIME_ERROR",
-            String(message.message ?? "pack failed to load"),
-          ),
-        });
+      case "error": {
+        const error = new ShapePackError(
+          message.code === "PACK_INVALID_MANIFEST"
+            ? "PACK_INVALID_MANIFEST"
+            : "PACK_RUNTIME_ERROR",
+          String(message.message ?? "pack failed to load"),
+        );
+        if (this.onReady) {
+          this.onReady({ error });
+        } else {
+          this.fail(error);
+        }
         break;
+      }
       case "render:ok": {
         const pending = this.takePending(message.requestId);
         pending?.resolve(message.ops);
@@ -243,13 +263,14 @@ export class ShapePackSandbox {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.pendingRenders.delete(requestId);
-        reject(
-          new ShapePackError(
-            "PACK_TIMEOUT",
-            `rendering "${context.shapeId}" exceeded ${this.renderTimeout}ms`,
-            { shapeId: context.shapeId },
-          ),
+        const error = new ShapePackError(
+          "PACK_TIMEOUT",
+          `rendering "${context.shapeId}" exceeded ${this.renderTimeout}ms`,
+          { shapeId: context.shapeId },
         );
+        reject(error);
+        // the worker is single-threaded: a hung render blocks every later one
+        this.fail(error);
       }, this.renderTimeout);
 
       this.pendingRenders.set(requestId, { resolve, reject, timeout });

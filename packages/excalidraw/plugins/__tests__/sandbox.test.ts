@@ -90,6 +90,7 @@ describe("shape pack sandbox", () => {
       ["WebSocket", `new WebSocket("wss://example.com")`],
       ["importScripts", `importScripts("https://example.com/x.js")`],
       ["Worker", `new Worker("x.js")`],
+      ["import", `import("https://example.com/x.js")`],
     ] as const;
 
     for (const [name, expression] of BLOCKED_CALLS) {

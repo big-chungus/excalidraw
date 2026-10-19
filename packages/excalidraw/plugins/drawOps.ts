@@ -119,6 +119,9 @@ const validateOp = (value: unknown): string | null => {
       ) {
         return "ellipse op requires finite cx/cy/rx/ry";
       }
+      if (op.rx < 0 || op.ry < 0) {
+        return "ellipse radii must not be negative";
+      }
       return null;
     }
     case "polyline": {

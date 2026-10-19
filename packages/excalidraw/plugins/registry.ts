@@ -57,21 +57,40 @@ export type ShapePackRegistryOptions = {
 const MAX_CONCURRENT_RENDERS = 8;
 
 const defaultLoadSource = async (url: string) => {
-  const response = await fetch(url);
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    SHAPE_PACK_LIMITS.initTimeout,
+  );
 
-  if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}`);
-  }
+  try {
+    const response = await fetch(url, { signal: controller.signal });
 
-  const source = await response.text();
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
 
-  if (source.length > SHAPE_PACK_LIMITS.maxSourceBytes) {
-    throw new Error(
+    const tooLarge = new Error(
       `pack source exceeds ${SHAPE_PACK_LIMITS.maxSourceBytes} bytes`,
     );
-  }
 
-  return source;
+    if (
+      Number(response.headers.get("content-length")) >
+      SHAPE_PACK_LIMITS.maxSourceBytes
+    ) {
+      throw tooLarge;
+    }
+
+    const source = await response.text();
+
+    if (source.length > SHAPE_PACK_LIMITS.maxSourceBytes) {
+      throw tooLarge;
+    }
+
+    return source;
+  } finally {
+    clearTimeout(timeout);
+  }
 };
 
 const getRenderCacheKey = (context: ShapeRenderContext, packId: string) =>
@@ -219,6 +238,13 @@ export class ShapePackRegistry {
       );
     }
 
+    loaded.sandbox.onFatal = (error) => {
+      if (this.packs.get(pack.id)?.sandbox !== loaded.sandbox) {
+        return;
+      }
+      this.unload(pack.id);
+      this.emitter.trigger({ type: "error", error });
+    };
     this.packs.set(pack.id, { descriptor: pack, sandbox: loaded.sandbox });
     for (const shape of pack.shapes) {
       this.shapes.set(shape.key, shape);
@@ -358,6 +384,9 @@ export class ShapePackRegistry {
     pack.sandbox
       .render(context)
       .then((rawOps) => {
+        if (this.packs.get(shape.packId) !== pack) {
+          return;
+        }
         const validated = validateDrawOps(rawOps);
 
         if (!validated.ok) {
@@ -380,6 +409,9 @@ export class ShapePackRegistry {
         this.emitter.trigger({ type: "render", revision: this.revision });
       })
       .catch((error: unknown) => {
+        if (this.packs.get(shape.packId) !== pack) {
+          return;
+        }
         this.disableShape(
           shape,
           error instanceof ShapePackError

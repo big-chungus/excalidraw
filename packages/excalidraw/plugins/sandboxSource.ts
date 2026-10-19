@@ -80,6 +80,9 @@ export const SHAPE_PACK_SANDBOX_RUNTIME_SOURCE = `
 var __EXCALIDRAW_BLOCKED_CALLABLE = ${json(BLOCKED_CALLABLE_GLOBALS)};
 var __EXCALIDRAW_BLOCKED_NAMESPACES = ${json(BLOCKED_NAMESPACE_GLOBALS)};
 var __EXCALIDRAW_SHADOWED = ${json(SHADOWED_IDENTIFIERS)};
+// import() is syntax, so it can't be shadowed or removed from the realm; any
+// code that mentions the keyword is refused before it is compiled instead
+var __EXCALIDRAW_IMPORT = /\\bimport\\b/;
 
 function __excalidrawShapePackBlocked(name) {
   return function () {
@@ -87,6 +90,77 @@ function __excalidrawShapePackBlocked(name) {
       "[excalidraw] " + name + "() is not available inside the shape pack sandbox"
     );
   };
+}
+
+function __excalidrawShapePackAssertNoImport(code) {
+  if (__EXCALIDRAW_IMPORT.test(code)) {
+    __excalidrawShapePackBlocked("import")();
+  }
+}
+
+function __excalidrawShapePackGuardCode(Ctor) {
+  var guarded = function () {
+    var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+      args.push(String(arguments[i]));
+      __excalidrawShapePackAssertNoImport(args[i]);
+    }
+    return Ctor.apply(undefined, args);
+  };
+  guarded.prototype = Ctor.prototype;
+  return guarded;
+}
+
+// Only touches intrinsics when running as the realm's own global (the real
+// worker), so in-process test scopes don't patch the test runner's realm.
+function __excalidrawShapePackGuardRealm(scope, SafeFunction) {
+  if (SafeFunction("return this")() !== scope) {
+    return;
+  }
+  var ctors = [SafeFunction];
+  var sources = [
+    "return function* () {}",
+    "return async function () {}",
+    "return async function* () {}",
+  ];
+  for (var i = 0; i < sources.length; i++) {
+    try {
+      ctors.push(Object.getPrototypeOf(SafeFunction(sources[i])()).constructor);
+    } catch (unsupported) {}
+  }
+  for (i = 0; i < ctors.length; i++) {
+    Object.defineProperty(ctors[i].prototype, "constructor", {
+      configurable: true,
+      writable: true,
+      enumerable: false,
+      value: __excalidrawShapePackGuardCode(ctors[i]),
+    });
+  }
+  Object.defineProperty(scope, "Function", {
+    configurable: true,
+    writable: true,
+    enumerable: false,
+    value: ctors[0].prototype.constructor,
+  });
+  ["setTimeout", "setInterval"].forEach(function (name) {
+    var original = scope[name];
+    if (typeof original !== "function") {
+      return;
+    }
+    Object.defineProperty(scope, name, {
+      configurable: true,
+      writable: true,
+      enumerable: false,
+      value: function (handler) {
+        if (typeof handler !== "function") {
+          throw new Error(
+            "[excalidraw] " + name + "() requires a function inside the shape pack sandbox"
+          );
+        }
+        return original.apply(scope, arguments);
+      },
+    });
+  });
 }
 
 function __excalidrawShapePackHarden(scope) {
@@ -132,6 +206,7 @@ function __excalidrawShapePackRuntime(scope) {
   var renderers = null;
 
   __excalidrawShapePackHarden(scope);
+  __excalidrawShapePackGuardRealm(scope, SafeFunction);
 
   function fail(code, message) {
     post({ type: "error", code: code, message: String(message) });
@@ -156,6 +231,8 @@ function __excalidrawShapePackRuntime(scope) {
         registered = pack;
       },
     });
+
+    __excalidrawShapePackAssertNoImport(source);
 
     var args = ["excalidraw"].concat(__EXCALIDRAW_SHADOWED);
     var factory = SafeFunction.apply(
