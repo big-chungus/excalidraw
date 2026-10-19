@@ -142,6 +142,7 @@ export interface ExcalidrawElementWithCanvas {
   canvasOffsetY: number;
   imageCrop: ExcalidrawImageElement["crop"] | null;
   containingFrameOpacity: number;
+  shapePackRevision: number;
 }
 
 const cappedElementCanvasSize = (
@@ -266,6 +267,7 @@ const generateElementCanvas = (
     containingFrameOpacity:
       getContainingFrame(element, elementsMap)?.opacity || 100,
     imageCrop: isImageElement(element) ? element.crop : null,
+    shapePackRevision: renderConfig.shapePacks?.getRenderRevision(element) ?? 0,
   };
 };
 
@@ -321,6 +323,17 @@ const drawElementOnCanvas = (
   context: CanvasRenderingContext2D,
   renderConfig: StaticCanvasRenderConfig,
 ) => {
+  // elements backed by a runtime shape pack are painted by the pack; when it
+  // can't paint them (not loaded, render pending, pack failed) they fall
+  // through and render as the regular shape they were created as
+  if (
+    renderConfig.shapePacks?.drawShape(element, context, {
+      theme: renderConfig.theme,
+    })
+  ) {
+    return;
+  }
+
   switch (element.type) {
     case "rectangle":
     case "iframe":
@@ -557,12 +570,18 @@ const generateElementWithCanvas = (
   const containingFrameOpacity =
     getContainingFrame(element, elementsMap)?.opacity || 100;
 
+  // bumps when a shape pack resolves (or loses) this element's rendered
+  // output; stays 0 for elements that aren't pack-backed
+  const shapePackRevision =
+    renderConfig.shapePacks?.getRenderRevision(element) ?? 0;
+
   if (
     !prevElementWithCanvas ||
     shouldRegenerateBecauseZoom ||
     prevElementWithCanvas.theme !== appState.theme ||
     prevElementWithCanvas.imageCrop !== imageCrop ||
-    prevElementWithCanvas.containingFrameOpacity !== containingFrameOpacity
+    prevElementWithCanvas.containingFrameOpacity !== containingFrameOpacity ||
+    prevElementWithCanvas.shapePackRevision !== shapePackRevision
   ) {
     const elementWithCanvas = generateElementCanvas(
       element,

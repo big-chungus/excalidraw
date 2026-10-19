@@ -24,6 +24,33 @@ import type { Drawable } from "roughjs/bin/core";
 export type RenderableElementsMap = NonDeletedElementsMap &
   MakeBrand<"RenderableElementsMap">;
 
+/**
+ * Seam through which runtime shape packs paint their elements.
+ *
+ * Deliberately minimal: the renderer only asks "did you draw this?" and "has
+ * your output changed?", so the element package stays unaware of packs,
+ * sandboxes and display lists. Provided by `ShapePackRegistry.renderSource`.
+ */
+export type ShapePackRenderSource = {
+  /**
+   * Paints the element if it is backed by a loaded pack shape whose render
+   * has resolved. Returns `false` when the caller should fall back to the
+   * element's own (base) shape — unknown pack, render still pending, or a
+   * pack that failed.
+   */
+  drawShape: (
+    element: ExcalidrawElement,
+    context: CanvasRenderingContext2D,
+    options: { theme: AppState["theme"] },
+  ) => boolean;
+  /**
+   * Changes whenever the element's pack-rendered output would differ, so the
+   * cached element canvas can be invalidated. `0` for elements that aren't
+   * pack-backed.
+   */
+  getRenderRevision: (element: ExcalidrawElement) => number;
+};
+
 export type StaticCanvasRenderConfig = {
   canvasBackgroundColor: AppState["viewBackgroundColor"];
   // extra options passed to the renderer
@@ -40,6 +67,8 @@ export type StaticCanvasRenderConfig = {
   elementsPendingErasure: ElementsPendingErasure;
   pendingFlowchartNodes: PendingExcalidrawElements | null;
   theme: AppState["theme"];
+  /** when omitted, pack-backed elements render as their base shape */
+  shapePacks?: ShapePackRenderSource;
 };
 
 export type SVGRenderConfig = {

@@ -1,0 +1,81 @@
+# Shape packs
+
+Shape packs let a host app add domain-specific shapes — network gear, cloud
+icons, and the like — **at runtime**, without forking or rebuilding the editor.
+A pack is a script the editor fetches, evaluates inside a worker sandbox with
+no network and no storage access, and asks for a display list whenever one of
+its shapes needs painting.
+
+This page covers the host side. The contract for writing a pack — the draw ops,
+the render hook, versioning, every failure mode — lives in
+[`packages/excalidraw/plugins/README.md`](https://github.com/excalidraw/excalidraw/blob/master/packages/excalidraw/plugins/README.md),
+and a working pack in
+[`examples/shape-pack`](https://github.com/excalidraw/excalidraw/tree/master/examples/shape-pack).
+
+## Loading a pack
+
+The registry hangs off the imperative API:
+
+```tsx
+const result = await excalidrawAPI.shapePacks.load(
+  "https://example.com/network-shapes.pack.js",
+);
+
+if (result.status === "error") {
+  // loading never throws into the editor — every failure is reported
+  console.error(result.error.code, result.error.message);
+}
+```
+
+| method                       | description                                                        |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `load(url)`                  | fetch, sandbox, validate and register a pack (atomically)            |
+| `unload(packId)`             | terminate the pack's worker and drop its shapes                      |
+| `getPacks()`, `getPack(id)`  | currently loaded packs                                               |
+| `getShapes()`, `getShape()`  | registered shapes: id, label, icon, default props                    |
+| `onEvent(cb)`                | `loaded` / `unloaded` / `render` / `error`                           |
+
+Errors are also surfaced to the user as a toast by the editor itself.
+
+## Inserting a pack shape
+
+There is no toolbar entry for pack shapes yet — hosts insert them through the
+scene API, and can build their own picker from `getShapes()` (each shape
+carries an `icon` display list, which `paintDrawOps` renders):
+
+```tsx
+import { newShapePackElement } from "@excalidraw/excalidraw";
+
+const shape = excalidrawAPI.shapePacks.getShape("network", "router")!;
+
+excalidrawAPI.updateScene({
+  elements: [
+    ...excalidrawAPI.getSceneElements(),
+    newShapePackElement(shape, { x: 100, y: 100, props: { ports: 6 } }),
+  ],
+});
+```
+
+## Degradation
+
+A pack shape is an ordinary `rectangle`, `ellipse` or `diamond` element with a
+reference in `customData.shapePack`. A scene that uses pack shapes is therefore
+a normal scene: open it without the pack and the elements still render, export,
+bind arrows and round-trip — as their base shape. Load the pack and they are
+upgraded in place.
+
+The same applies while a pack is failing: a pack that can't be fetched, doesn't
+validate, times out, or whose `render` throws never breaks the editor. Its
+elements just keep drawing as their base shape.
+
+## Security
+
+Pack code runs in its own worker with `fetch`, `XMLHttpRequest`, `WebSocket`,
+`importScripts`, `localStorage`, `sessionStorage`, `indexedDB`, `caches` and
+friends removed from the realm before any pack code is evaluated, and only
+JSON crosses the boundary in either direction. The editor also caps how long a
+pack may take to register or to render.
+
+This is a capability boundary, not a licence to load untrusted code: a pack you
+load is still code you chose to run, and nothing stops it from drawing
+something misleading.

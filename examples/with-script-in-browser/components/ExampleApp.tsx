@@ -99,6 +99,7 @@ export default function ExampleApp({
     TTDDialogTrigger,
     ROUNDNESS,
     loadSceneOrLibraryFromBlob,
+    newShapePackElement,
   } = excalidrawLib;
   const appRef = useRef<any>(null);
   const [viewModeEnabled, setViewModeEnabled] = useState(false);
@@ -184,7 +185,10 @@ export default function ExampleApp({
     const newElement = cloneElement(
       Excalidraw,
       {
-        excalidrawAPI: (api: ExcalidrawImperativeAPI) => setExcalidrawAPI(api),
+        // the prop is `onExcalidrawAPI`; passing `excalidrawAPI` here left the
+        // example stuck on "Loading scene…" because the API never arrived
+        onExcalidrawAPI: (api: ExcalidrawImperativeAPI) =>
+          setExcalidrawAPI(api),
         initialData: initialStatePromiseRef.current.promise,
         onChange: (
           elements: NonDeletedExcalidrawElement[],
@@ -357,6 +361,39 @@ export default function ExampleApp({
       },
     };
     excalidrawAPI?.updateScene(sceneData);
+  };
+
+  /**
+   * Loads `examples/shape-pack` at runtime (served by the dev server, not
+   * bundled) and drops one of its shapes onto the canvas.
+   */
+  const loadShapePack = async () => {
+    if (!excalidrawAPI) {
+      return;
+    }
+
+    if (!excalidrawAPI.shapePacks.getPack("network")) {
+      const result = await excalidrawAPI.shapePacks.load(
+        `${window.location.origin}/shape-packs/network-shapes.pack.js`,
+      );
+
+      if (result.status === "error") {
+        // the editor already toasts this; log the code for the example
+        console.error(result.error.code, result.error.message);
+        return;
+      }
+    }
+
+    const shapes = excalidrawAPI.shapePacks.getShapes();
+
+    excalidrawAPI.updateScene({
+      elements: [
+        ...excalidrawAPI.getSceneElements(),
+        ...shapes.map((shape, index) =>
+          newShapePackElement(shape, { x: 120 + index * 220, y: 120 }),
+        ),
+      ],
+    });
   };
 
   const onLinkOpen = useCallback(
@@ -703,6 +740,9 @@ export default function ExampleApp({
             }}
           >
             Update Library
+          </button>
+          <button className="load-shape-pack" onClick={loadShapePack}>
+            Load Shape Pack
           </button>
 
           <label>
