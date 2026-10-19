@@ -4,7 +4,11 @@ import { getCommonBounds } from "./bounds";
 import { updateBoundElements } from "./binding";
 import { getFrameChildren } from "./frame";
 import { getSelectedElementsByGroup } from "./groups";
-import { isArrowElement, isFrameLikeElement } from "./typeChecks";
+import {
+  isArrowElement,
+  isFrameLikeElement,
+  isTextElement,
+} from "./typeChecks";
 
 import { getNonDeletedElements } from ".";
 
@@ -93,10 +97,18 @@ const toNode = (
  */
 const isConnector = (
   elements: readonly NonDeletedExcalidrawElement[],
-): elements is [NonDeletedExcalidrawElement & ExcalidrawArrowElement] =>
-  elements.length === 1 &&
+): elements is [
+  NonDeletedExcalidrawElement & ExcalidrawArrowElement,
+  ...NonDeletedExcalidrawElement[],
+] =>
   isArrowElement(elements[0]) &&
-  (elements[0].startBinding != null || elements[0].endBinding != null);
+  (elements[0].startBinding != null || elements[0].endBinding != null) &&
+  elements
+    .slice(1)
+    .every(
+      (element) =>
+        isTextElement(element) && element.containerId === elements[0].id,
+    );
 
 const buildClusters = (
   selectedElements: readonly NonDeletedExcalidrawElement[],
