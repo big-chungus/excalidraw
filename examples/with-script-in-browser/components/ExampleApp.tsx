@@ -185,7 +185,10 @@ export default function ExampleApp({
     const newElement = cloneElement(
       Excalidraw,
       {
-        excalidrawAPI: (api: ExcalidrawImperativeAPI) => setExcalidrawAPI(api),
+        // the prop is `onExcalidrawAPI`; passing `excalidrawAPI` here left the
+        // example stuck on "Loading scene…" because the API never arrived
+        onExcalidrawAPI: (api: ExcalidrawImperativeAPI) =>
+          setExcalidrawAPI(api),
         initialData: initialStatePromiseRef.current.promise,
         onChange: (
           elements: NonDeletedExcalidrawElement[],
