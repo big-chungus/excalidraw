@@ -97,6 +97,14 @@ export type ExcalidrawEllipseElement = _ExcalidrawElementBase & {
   type: "ellipse";
 };
 
+/**
+ * Isosceles triangle: apex at the top-center of the bounding box, base along
+ * the bottom edge. Never rounded (see `canChangeRoundness`).
+ */
+export type ExcalidrawTriangleElement = _ExcalidrawElementBase & {
+  type: "triangle";
+};
+
 export type ExcalidrawEmbeddableElement = _ExcalidrawElementBase &
   Readonly<{
     type: "embeddable";
@@ -181,12 +189,14 @@ export type ExcalidrawGenericElement =
   | ExcalidrawSelectionElement
   | ExcalidrawRectangleElement
   | ExcalidrawDiamondElement
-  | ExcalidrawEllipseElement;
+  | ExcalidrawEllipseElement
+  | ExcalidrawTriangleElement;
 
 export type ExcalidrawFlowchartNodeElement =
   | ExcalidrawRectangleElement
   | ExcalidrawDiamondElement
-  | ExcalidrawEllipseElement;
+  | ExcalidrawEllipseElement
+  | ExcalidrawTriangleElement;
 
 export type ExcalidrawRectanguloidElement =
   | ExcalidrawRectangleElement
@@ -260,6 +270,7 @@ export type ExcalidrawBindableElement =
   | ExcalidrawRectangleElement
   | ExcalidrawDiamondElement
   | ExcalidrawEllipseElement
+  | ExcalidrawTriangleElement
   | ExcalidrawTextElement
   | ExcalidrawImageElement
   | ExcalidrawIframeElement
@@ -271,6 +282,7 @@ export type ExcalidrawTextContainer =
   | ExcalidrawRectangleElement
   | ExcalidrawDiamondElement
   | ExcalidrawEllipseElement
+  | ExcalidrawTriangleElement
   | ExcalidrawArrowElement;
 
 export type ExcalidrawTextElementWithContainer = {
@@ -455,6 +467,10 @@ export type ExcalidrawLinearElementSubType =
   | "curvedArrow"
   | "elbowArrow";
 
-export type ConvertibleGenericTypes = "rectangle" | "diamond" | "ellipse";
+export type ConvertibleGenericTypes =
+  | "rectangle"
+  | "diamond"
+  | "ellipse"
+  | "triangle";
 export type ConvertibleLinearTypes = ExcalidrawLinearElementSubType;
 export type ConvertibleTypes = ConvertibleGenericTypes | ConvertibleLinearTypes;

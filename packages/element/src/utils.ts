@@ -34,7 +34,11 @@ import type {
   Zoom,
 } from "@excalidraw/excalidraw/types";
 
-import { elementCenterPoint, getDiamondPoints } from "./bounds";
+import {
+  elementCenterPoint,
+  getDiamondPoints,
+  getTrianglePoints,
+} from "./bounds";
 
 import { generateLinearCollisionShape } from "./shape";
 
@@ -57,6 +61,7 @@ import type {
   ExcalidrawFreeDrawElement,
   ExcalidrawLinearElement,
   ExcalidrawRectanguloidElement,
+  ExcalidrawTriangleElement,
 } from "./types";
 
 type ElementShape = [LineSegment<GlobalPoint>[], Curve<GlobalPoint>[]];
@@ -472,6 +477,89 @@ export function deconstructDiamondElement(
   return shape;
 }
 
+/**
+ * The three vertices of a triangle element as degenerate corner curves,
+ * clockwise from the apex, matching the shape of `getDiamondBaseCorners`.
+ *
+ * Triangles are never rounded (see `canChangeRoundness`), so the arcs are
+ * always vanishingly small — they exist only so that triangles decompose into
+ * the same (sides, curves) pair every other shape does, which is what
+ * `deconstructTriangleElement`'s consumers (hit testing, binding, bucket fill)
+ * expect.
+ */
+export function getTriangleBaseCorners(
+  element: ExcalidrawTriangleElement,
+): Curve<GlobalPoint>[] {
+  const [apexX, apexY, rightX, rightY, leftX, leftY] =
+    getTrianglePoints(element);
+
+  const [apex, right, left]: GlobalPoint[] = [
+    pointFrom(element.x + apexX, element.y + apexY),
+    pointFrom(element.x + rightX, element.y + rightY),
+    pointFrom(element.x + leftX, element.y + leftY),
+  ];
+
+  // 1% of the adjacent side, mirroring the non-rounded diamond
+  const CORNER_RATIO = 0.01;
+
+  const towards = (from: GlobalPoint, to: GlobalPoint): GlobalPoint =>
+    pointFrom(
+      from[0] + (to[0] - from[0]) * CORNER_RATIO,
+      from[1] + (to[1] - from[1]) * CORNER_RATIO,
+    );
+
+  // each corner enters from the previous vertex and exits towards the next
+  return [
+    curve(towards(apex, left), apex, apex, towards(apex, right)), // APEX
+    curve(towards(right, apex), right, right, towards(right, left)), // BOTTOM RIGHT
+    curve(towards(left, right), left, left, towards(left, apex)), // BOTTOM LEFT
+  ];
+}
+
+/**
+ * Get the **unrotated** building components of a triangle element in the form
+ * of line segments and curves as a tuple, in this order.
+ *
+ * @param element The element to deconstruct
+ * @param offset An optional offset to expand the triangle outline by
+ * @returns Tuple of **unrotated** line segments (0) and curves (1)
+ */
+export function deconstructTriangleElement(
+  element: ExcalidrawTriangleElement,
+  offset: number = 0,
+): [LineSegment<GlobalPoint>[], Curve<GlobalPoint>[]] {
+  const cachedShape = getElementShapesCacheEntry(element, offset);
+
+  if (cachedShape) {
+    return cachedShape;
+  }
+
+  const baseCorners = getTriangleBaseCorners(element);
+
+  const corners =
+    offset > 0
+      ? baseCorners.map(
+          (corner) =>
+            curveCatmullRomCubicApproxPoints(
+              curveOffsetPoints(corner, offset),
+            )!,
+        )
+      : [[baseCorners[0]], [baseCorners[1]], [baseCorners[2]]];
+
+  const sides = corners.map((corner, index) =>
+    lineSegment<GlobalPoint>(
+      corner[corner.length - 1][3],
+      corners[(index + 1) % corners.length][0][0],
+    ),
+  );
+
+  const shape = [sides, corners.flat()] as ElementShape;
+
+  setElementShapesCacheEntry(element, shape, offset);
+
+  return shape;
+}
+
 // Checks if the first and last point are close enough
 // to be considered a loop
 export const isPathALoop = (
@@ -604,46 +692,51 @@ export const getSnapOutlineMidPoint = (
   zoom: AppState["zoom"],
 ) => {
   const center = elementCenterPoint(element, elementsMap);
-  const sideMidpoints =
+  const outlineCorners =
     element.type === "diamond"
-      ? getDiamondBaseCorners(element).map((curve) => {
-          const point = bezierEquation(curve, 0.5);
-          const rotatedPoint = pointRotateRads(point, center, element.angle);
+      ? getDiamondBaseCorners(element)
+      : element.type === "triangle"
+      ? getTriangleBaseCorners(element)
+      : null;
+  const sideMidpoints = outlineCorners
+    ? outlineCorners.map((curve) => {
+        const point = bezierEquation(curve, 0.5);
+        const rotatedPoint = pointRotateRads(point, center, element.angle);
 
-          return pointFrom<GlobalPoint>(rotatedPoint[0], rotatedPoint[1]);
-        })
-      : [
-          // RIGHT midpoint
-          pointRotateRads(
-            pointFrom<GlobalPoint>(
-              element.x + element.width,
-              element.y + element.height / 2,
-            ),
-            center,
-            element.angle,
+        return pointFrom<GlobalPoint>(rotatedPoint[0], rotatedPoint[1]);
+      })
+    : [
+        // RIGHT midpoint
+        pointRotateRads(
+          pointFrom<GlobalPoint>(
+            element.x + element.width,
+            element.y + element.height / 2,
           ),
-          // BOTTOM midpoint
-          pointRotateRads(
-            pointFrom<GlobalPoint>(
-              element.x + element.width / 2,
-              element.y + element.height,
-            ),
-            center,
-            element.angle,
+          center,
+          element.angle,
+        ),
+        // BOTTOM midpoint
+        pointRotateRads(
+          pointFrom<GlobalPoint>(
+            element.x + element.width / 2,
+            element.y + element.height,
           ),
-          // LEFT midpoint
-          pointRotateRads(
-            pointFrom<GlobalPoint>(element.x, element.y + element.height / 2),
-            center,
-            element.angle,
-          ),
-          // TOP midpoint
-          pointRotateRads(
-            pointFrom<GlobalPoint>(element.x + element.width / 2, element.y),
-            center,
-            element.angle,
-          ),
-        ];
+          center,
+          element.angle,
+        ),
+        // LEFT midpoint
+        pointRotateRads(
+          pointFrom<GlobalPoint>(element.x, element.y + element.height / 2),
+          center,
+          element.angle,
+        ),
+        // TOP midpoint
+        pointRotateRads(
+          pointFrom<GlobalPoint>(element.x + element.width / 2, element.y),
+          center,
+          element.angle,
+        ),
+      ];
   const candidate = sideMidpoints.find(
     (midpoint) =>
       pointDistance(point, midpoint) <=

@@ -45,6 +45,7 @@ import { getElementShape } from "./shape";
 import {
   deconstructDiamondElement,
   deconstructRectanguloidElement,
+  deconstructTriangleElement,
 } from "./utils";
 import { intersectElementWithLineSegment } from "./collision";
 import { elementOverlapsWithFrame, getContainingFrame } from "./frame";
@@ -199,6 +200,19 @@ export class ElementBounds {
       const maxX = Math.max(x11, x12, x22, x21);
       const maxY = Math.max(y11, y12, y22, y21);
       bounds = [minX, minY, maxX, maxY];
+    } else if (element.type === "triangle") {
+      const center = pointFrom(cx, cy);
+      const [apex, bottomRight, bottomLeft] = [
+        pointFrom(cx, y1),
+        pointFrom(x2, y2),
+        pointFrom(x1, y2),
+      ].map((p) => pointRotateRads(p, center, element.angle));
+      bounds = [
+        Math.min(apex[0], bottomRight[0], bottomLeft[0]),
+        Math.min(apex[1], bottomRight[1], bottomLeft[1]),
+        Math.max(apex[0], bottomRight[0], bottomLeft[0]),
+        Math.max(apex[1], bottomRight[1], bottomLeft[1]),
+      ];
     } else if (element.type === "ellipse") {
       const w = (x2 - x1) / 2;
       const h = (y2 - y1) / 2;
@@ -359,6 +373,14 @@ export const getElementLineSegments = (
     return [...rotatedSides, ...cornerSegments];
   } else if (element.type === "diamond") {
     const [sides, corners] = deconstructDiamondElement(element);
+    const cornerSegments = corners
+      .map((corner) => getSegmentsOnCurve(corner, center, element.angle))
+      .flat();
+    const rotatedSides = getRotatedSides(sides, center, element.angle);
+
+    return [...rotatedSides, ...cornerSegments];
+  } else if (element.type === "triangle") {
+    const [sides, corners] = deconstructTriangleElement(element);
     const cornerSegments = corners
       .map((corner) => getSegmentsOnCurve(corner, center, element.angle))
       .flat();
@@ -531,6 +553,21 @@ export const getDiamondPoints = (element: ExcalidrawElement) => {
   const leftY = rightY;
 
   return [topX, topY, rightX, rightY, bottomX, bottomY, leftX, leftY];
+};
+
+/**
+ * Element-local vertices of a triangle element, clockwise from the apex:
+ * `[apexX, apexY, rightX, rightY, leftX, leftY]`.
+ */
+export const getTrianglePoints = (element: ExcalidrawElement) => {
+  const apexX = element.width / 2;
+  const apexY = 0;
+  const rightX = element.width;
+  const rightY = element.height;
+  const leftX = 0;
+  const leftY = element.height;
+
+  return [apexX, apexY, rightX, rightY, leftX, leftY];
 };
 
 // reference: https://eliot-jones.com/2019/12/cubic-bezier-curve-bounding-boxes

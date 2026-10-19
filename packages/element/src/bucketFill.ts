@@ -577,6 +577,7 @@ const FILL_BOUNDARY_TYPES = new Set<ExcalidrawElement["type"]>([
   "rectangle",
   "diamond",
   "ellipse",
+  "triangle",
   "frame",
   "magicframe",
   "line",
