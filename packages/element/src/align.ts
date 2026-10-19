@@ -27,9 +27,12 @@ export const alignElements = (
     scene.getNonDeletedElementsMap(),
     appState,
   ).map(getNonDeletedElements); // Nothing to align on deleted elements
+  const movableGroups = groups.filter((group) =>
+    group.some((element) => element.locked),
+  );
   const selectionBoundingBox = getCommonBoundingBox(selectedElements);
 
-  return groups.flatMap((group) => {
+  return movableGroups.flatMap((group) => {
     const translation = calculateTranslation(
       group,
       selectionBoundingBox,
