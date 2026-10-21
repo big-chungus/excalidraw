@@ -560,7 +560,7 @@
   "toast": {
     "addedToLibrary": "Added to library",
     "copyStyles": "Copied styles.",
-    "copyToClipboard": "Copied to clipbord.",
+    "copyToClipboard": "Copied to clipboard.",
     "copyToClipboardAsPng": "Copied {{exportSelection}} to clipboard as PNG\n({{exportColorScheme}})",
     "copyToClipboardAsSvg": "Copied {{exportSelection}} to clipboard as SVG\n({{exportColorScheme}})",
     "fileSaved": "File saved.",
